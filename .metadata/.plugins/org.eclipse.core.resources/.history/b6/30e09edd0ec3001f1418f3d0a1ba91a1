@@ -1,0 +1,58 @@
+package main;
+
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\nBienvenido a Booking Hoteles");
+            System.out.println("\nSeleccione una opción:");
+            System.out.println("1. Mostrar hoteles disponibles");
+            System.out.println("2. Confirmar habitaciones");
+            System.out.println("3. Realizar una reserva");
+            System.out.println("4. Salir");
+            System.out.print("\nIngrese el número de la opción: ");
+            
+            opcion = scanner.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    mostrarHoteles();
+                    break;
+                case 2:
+                    confirmarHabitaciones();
+                    break;
+                case 3:
+                    realizarReserva();
+                    break;
+                case 4:
+                    System.out.println("¡Gracias por usar Booking Hoteles! Hasta pronto.");
+                    break;
+                default:
+                    System.out.println("Opción no válida, intente nuevamente.");
+            }
+        } while (opcion != 4);
+
+        scanner.close();
+    }
+
+    // Métodos por implementar
+    public static void mostrarHoteles() {
+        System.out.println("Mostrando hoteles disponibles...");
+        // Aquí se implementará la lógica de búsqueda de hoteles.
+    }
+
+    public static void confirmarHabitaciones() {
+        System.out.println("Confirmando habitaciones disponibles...");
+        // Aquí se implementará la lógica para confirmar habitaciones.
+    }
+
+    public static void realizarReserva() {
+        System.out.println("Realizando una reserva...");
+        // Aquí se implementará la lógica para realizar reservas.
+    }
+}
+
