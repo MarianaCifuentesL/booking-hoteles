@@ -3,7 +3,7 @@ package model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +34,29 @@ public class Alojamiento {
 		this.tipo = tipo;
 		this.calificacion = calificacion;
 	}
+    
+    
+    
+    public Alojamiento(String nombre, String ciudad, String tipo, int calificacion, List<Reserva> reservas) {
+		super();
+		this.nombre = nombre;
+		this.ciudad = ciudad;
+		this.tipo = tipo;
+		this.calificacion = calificacion;
+		this.reservas = reservas;
+	}
+
+
+	public void agregarHabitacion(String tipo, double precio, String caracteristicas, int capacidad) {
+        String id = UUID.randomUUID().toString(); // Genera un ID único
+        Habitacion nuevaHabitacion = new Habitacion(id, tipo, precio, caracteristicas, capacidad);
+        habitaciones.add(nuevaHabitacion);
+//        System.out.println("Habitación añadida: " + nuevaHabitacion);
+    }
 
 
 
-	// Métodos getters y setters (añadido `ciudad`)
+	// Métodos getters y setters (añadido ciudad)
     
     public void agregarReserva(Reserva reserva) {
         this.reservas.add(reserva);
@@ -56,9 +75,11 @@ public class Alojamiento {
     }
 
     // Métodos para agregar y mostrar habitaciones
-    public void agregarHabitacion(Habitacion habitacion) {
-        this.habitaciones.add(habitacion);
-    }
+//    public void agregarHabitacion(Habitacion habitacion) {
+//        this.habitaciones.add(habitacion);
+//    }
+    
+
 
     public void mostrarInformacion() {
         System.out.println("Nombre: " + nombre + " | Tipo: " + tipo + " | Calificación: " + calificacion);
@@ -67,6 +88,18 @@ public class Alojamiento {
         for (Habitacion h : habitaciones) {
             h.mostrarDetalles();
         }
+    }
+    
+    // Método general para verificar si el alojamiento está disponible
+    public boolean estaDisponible(LocalDate fechaInicio, LocalDate fechaFin) {
+        // Si el alojamiento tiene habitaciones, se verifican las habitaciones
+        if (habitaciones != null && !habitaciones.isEmpty()) {
+            return habitaciones.stream()
+                .allMatch(habitacion -> habitacion.estaDisponible(fechaInicio, fechaFin));
+        }
+        
+        // Si no tiene habitaciones (es una finca o un día de sol), se verifica que no haya reservas en esas fechas
+        return true; // Para fincas y días de sol siempre está disponible, a menos que agregues lógica específica
     }
     
     

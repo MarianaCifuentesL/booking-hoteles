@@ -1,0 +1,546 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+import model.Alojamiento;
+import model.DiaDeSol;
+import model.Habitacion;
+import model.Reserva;
+
+import java.text.Normalizer;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
+
+public class BookingApp {
+	private List<Alojamiento> alojamientos;
+	private List<Reserva> reservas;
+
+	public BookingApp() {
+		this.alojamientos = new ArrayList<>();
+		this.reservas = new ArrayList<>();  // Asegúrate de inicializar esta lista
+	}
+
+	public void agregarAlojamiento(Alojamiento alojamiento) {
+		this.alojamientos.add(alojamiento);
+	}
+
+	public void buscarAlojamientos(String ciudad, String tipo, LocalDate fechaInicio, LocalDate fechaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+		System.out.println("\n--- Resultados de búsqueda para: " + tipo + " en " + ciudad + " ---");
+		boolean encontrado = false;
+
+		if (tipo.equalsIgnoreCase("Día de Sol")) {
+			int totalPersonas = cantidadAdultos + cantidadNiños;
+
+			for (Alojamiento a : alojamientos) {
+				if (a.getCiudad().equalsIgnoreCase(ciudad) && a instanceof DiaDeSol) {
+					DiaDeSol diaDeSol = (DiaDeSol) a;
+
+					// Mostrar actividades y costos
+					System.out.println("Nombre: " + diaDeSol.getNombre());
+					System.out.println("Calificación: " + diaDeSol.getCalificacion() + " estrellas");
+					System.out.println("Actividades: " + String.join(", ", diaDeSol.getActividades()));
+					System.out.println("Incluye Almuerzo: " + (diaDeSol.isIncluyeAlmuerzo() ? "Sí" : "No"));
+					System.out.println("Incluye Refrigerio: " + (diaDeSol.isIncluyeRefrigerio() ? "Sí" : "No"));
+					System.out.println("Precio por persona: " + diaDeSol.getPrecioDia());
+					System.out.println("Costo total para " + totalPersonas + " personas: " + (diaDeSol.getPrecioDia() * totalPersonas));
+					encontrado = true;
+				}
+			}
+		} else {
+			long diasEstadia = ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1;
+
+			for (Alojamiento a : alojamientos) {
+				if (a.getCiudad().equalsIgnoreCase(ciudad) && a.getTipo().equalsIgnoreCase(tipo)) {
+					boolean tieneCapacidad = verificarCapacidad(a, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
+					if (!tieneCapacidad) continue;
+
+					double precioBase = obtenerPrecioHabitacionMasSimple(a) * cantidadHabitaciones * diasEstadia;
+					double precioFinal = aplicarDescuentosYAumentos(precioBase, fechaInicio, fechaFin);
+					double ajuste = precioFinal - precioBase;
+
+					System.out.println("Nombre: " + a.getNombre());
+					System.out.println("Calificación: " + a.getCalificacion());
+					System.out.println("Precio por noche: " + obtenerPrecioHabitacionMasSimple(a));
+					System.out.println("Precio total (sin ajustes): " + precioBase);
+					System.out.println((ajuste >= 0 ? "Aumento aplicado: " : "Descuento aplicado: ") + Math.abs(ajuste));
+					System.out.println("Precio total (con ajustes): " + precioFinal);
+					encontrado = true;
+				}
+			}
+		}
+
+		if (!encontrado) {
+			System.out.println("No se encontraron alojamientos que cumplan con los criterios.");
+		}
+	}
+
+
+
+	private boolean verificarCapacidad(Alojamiento alojamiento, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+		int totalPersonas = cantidadAdultos + cantidadNiños;
+
+		// Obtener todas las habitaciones disponibles
+		List<Habitacion> habitaciones = alojamiento.getHabitaciones();
+
+		// Validar que hay suficientes habitaciones para la cantidad solicitada
+		if (habitaciones.size() < cantidadHabitaciones) {
+			return false; // No hay suficientes habitaciones disponibles
+		}
+
+		// Generar todas las combinaciones posibles de habitaciones de tamaño "cantidadHabitaciones"
+		List<List<Habitacion>> combinaciones = generarCombinaciones(habitaciones, cantidadHabitaciones);
+
+		// Verificar si alguna combinación cumple con la capacidad requerida
+		for (List<Habitacion> combinacion : combinaciones) {
+			int capacidadTotal = combinacion.stream().mapToInt(Habitacion::getCapacidad).sum();
+			if (capacidadTotal >= totalPersonas) {
+				return true; // Hay una combinación válida
+			}
+		}
+
+		return false; // No se encontró una combinación que cumpla
+	}
+
+	private List<List<Habitacion>> generarCombinaciones(List<Habitacion> habitaciones, int cantidad) {
+		List<List<Habitacion>> resultado = new ArrayList<>();
+		generarCombinacionesRecursivo(habitaciones, new ArrayList<>(), 0, cantidad, resultado);
+		return resultado;
+	}
+
+	private void generarCombinacionesRecursivo(List<Habitacion> habitaciones, List<Habitacion> combinacionActual, 
+			int indice, int cantidad, List<List<Habitacion>> resultado) {
+		if (combinacionActual.size() == cantidad) {
+			resultado.add(new ArrayList<>(combinacionActual)); // Agregar combinación válida
+			return;
+		}
+
+		for (int i = indice; i < habitaciones.size(); i++) {
+			combinacionActual.add(habitaciones.get(i));
+			generarCombinacionesRecursivo(habitaciones, combinacionActual, i + 1, cantidad, resultado);
+			combinacionActual.remove(combinacionActual.size() - 1); // Retroceder
+		}
+	}
+
+
+
+	private double obtenerPrecioHabitacionMasSimple(Alojamiento alojamiento) {
+		return alojamiento.getHabitaciones().stream()
+				.mapToDouble(Habitacion::getPrecio)
+				.min()
+				.orElse(0);
+	}
+
+	private double aplicarDescuentosYAumentos(double precioBase, LocalDate fechaInicio, LocalDate fechaFin) {
+		if (fechaFin.getDayOfMonth() >= 25) {
+			return precioBase * 1.15;
+		} else if (fechaInicio.getDayOfMonth() >= 10 && fechaFin.getDayOfMonth() <= 15) {
+			return precioBase * 1.10;
+		} else if (fechaInicio.getDayOfMonth() >= 5 && fechaFin.getDayOfMonth() <= 10) {
+			return precioBase * 0.92;
+		}
+		return precioBase;
+	}
+
+	public void confirmarHabitaciones(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+		System.out.println("\n--- Confirmar habitaciones para: " + nombreHotel + " ---");
+
+		// Buscar el alojamiento por nombre
+		Alojamiento alojamiento = alojamientos.stream()
+				.filter(a -> eliminarTildes(a.getNombre()).equalsIgnoreCase(eliminarTildes(nombreHotel)))
+				.findFirst()
+				.orElse(null);
+
+
+		if (alojamiento == null) {
+			System.out.println("No se encontró un hotel con el nombre indicado.");
+			return;
+		}
+
+		// Total de personas que se alojarán
+		int totalPersonas = cantidadAdultos + cantidadNiños;
+
+		// Verificar habitaciones disponibles
+		boolean disponibilidad = false;
+
+		for (Habitacion habitacion : alojamiento.getHabitaciones()) {
+			if (habitacion.getCapacidad() >= totalPersonas && !estaReservada(habitacion, fechaInicio, fechaFin)) {
+				// Mostrar detalles de la habitación
+				System.out.println("\nTipo de habitación: " + habitacion.getTipo());
+				System.out.println("Características: " + habitacion.getCaracteristicas());
+				System.out.println("Capacidad: " + habitacion.getCapacidad() + " personas");
+				System.out.println("Precio por noche: " + habitacion.getPrecio());
+				disponibilidad = true;
+			}
+		}
+
+		if (!disponibilidad) {
+			System.out.println("No hay habitaciones disponibles para las fechas indicadas.");
+		}
+	}
+
+	public static String eliminarTildes(String texto) {
+		String normalized = Normalizer.normalize(texto, Normalizer.Form.NFD);
+		return normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+	}
+
+	// Verificar si una habitación está reservada en las fechas indicadas
+	private boolean estaReservada(Habitacion habitacion, LocalDate fechaInicio, LocalDate fechaFin) {
+		// Iterar sobre las reservas para verificar conflictos de fechas
+		for (Reserva reserva : habitacion.getReservas()) {
+			if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+				// Hay un conflicto de fechas con esta reserva
+				return true;
+			}
+		}
+		return false; // No hay conflictos
+	}
+
+	public void reservar(String nombreCliente, String apellidoCliente, LocalDate fechaNacimiento, String email,
+			String nacionalidad, String telefono, Alojamiento alojamiento, LocalDate fechaInicio,
+			LocalDate fechaFin, Map<String, Integer> habitacionesPorTipo, String horaLlegada) {
+
+		// Validar que el alojamiento no sea nulo
+		if (alojamiento == null) {
+			System.out.println("El alojamiento proporcionado no es válido.");
+			return;
+		}
+
+		Map<Habitacion, Integer> habitacionesReservadas = new HashMap<>();
+
+		// Validar la disponibilidad de cada tipo de habitación solicitado
+		for (Map.Entry<String, Integer> entry : habitacionesPorTipo.entrySet()) {
+			String tipoHabitacion = entry.getKey();
+			int cantidadSolicitada = entry.getValue();
+
+			List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
+					.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+					.limit(cantidadSolicitada) // Seleccionar solo las necesarias
+					.toList();
+
+			if (habitacionesDisponibles.size() < cantidadSolicitada) {
+				System.out.println("No hay suficientes habitaciones disponibles para el tipo " + tipoHabitacion + ".");
+				return;
+			}
+
+			// Almacenar las habitaciones reservadas para este tipo
+			for (int i = 0; i < cantidadSolicitada; i++) {
+				habitacionesReservadas.put(habitacionesDisponibles.get(i), cantidadSolicitada);
+			}
+		}
+
+		// Crear la reserva
+		Reserva reserva = new Reserva(nombreCliente, apellidoCliente, fechaNacimiento, email, nacionalidad, telefono,
+				alojamiento, fechaInicio, fechaFin, habitacionesPorTipo, horaLlegada);
+
+		// Vincular las habitaciones reservadas con la reserva
+		for (Map.Entry<Habitacion, Integer> entry : habitacionesReservadas.entrySet()) {
+			entry.getKey().agregarReserva(reserva);
+		}
+
+		// Registrar la reserva en la lista global
+		reservas.add(reserva);
+
+		System.out.println("Se ha realizado la reserva con éxito.");
+	}
+
+	public boolean confirmarDisponibilidad(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, Map<String, Integer> habitacionesPorTipo) {
+	    // Buscar el alojamiento por nombre
+	    Alojamiento alojamiento = alojamientos.stream()
+	            .filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
+	            .findFirst()
+	            .orElse(null);
+
+	    if (alojamiento == null) {
+	        System.out.println("No se encontró el hotel indicado.");
+	        return false;
+	    }
+
+	    // Validar la disponibilidad para cada tipo de habitación solicitado
+	    for (Map.Entry<String, Integer> entry : habitacionesPorTipo.entrySet()) {
+	        String tipoHabitacion = entry.getKey();
+	        int cantidadSolicitada = entry.getValue();
+
+	        // Filtrar habitaciones disponibles para el tipo especificado
+	        List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
+	                .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+	                .toList();
+
+	        // Verificar si hay suficientes habitaciones disponibles para el tipo solicitado
+	        if (habitacionesDisponibles.size() < cantidadSolicitada) {
+	            System.out.println("No hay suficientes habitaciones disponibles para el tipo " + tipoHabitacion + ".");
+	            return false;
+	        }
+	    }
+
+	    System.out.println("Hay disponibilidad para todas las habitaciones solicitadas.");
+	    return true;
+	}
+
+
+
+
+
+	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
+		int habitacionesOcupadas = 0;
+
+		// Verificar cuántas habitaciones están ocupadas para el tipo solicitado
+		for (Reserva reserva : reservas) {
+			if (reserva.getTipoHabitacion().equalsIgnoreCase(tipoHabitacion) &&
+					!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+				habitacionesOcupadas += reserva.getCantidadHabitaciones();
+			}
+		}
+
+		// Buscar habitaciones disponibles en el alojamiento
+		for (Alojamiento alojamiento : alojamientos) {
+			// Filtrar habitaciones del tipo solicitado en el alojamiento
+			long habitacionesDisponibles = alojamiento.getHabitaciones().stream()
+					.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion))
+					.count(); // Contamos las habitaciones de ese tipo
+
+			// Si hay suficientes habitaciones disponibles
+			if ((habitacionesDisponibles - habitacionesOcupadas) >= cantidadSolicitada) {
+				return true; // Hay disponibilidad
+			}
+		}
+
+		// Si no hay suficientes habitaciones disponibles
+		return false;
+	}
+
+	public void actualizarReserva(Scanner scanner) {
+	    System.out.print("Ingrese el email del cliente: ");
+	    String email = scanner.nextLine();
+
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	    System.out.print("Ingrese la fecha de nacimiento del cliente (dd/MM/yyyy): ");
+	    LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
+
+	    // Autenticación
+	    Reserva reserva = autenticarUsuario(email, fechaNacimiento);
+	    if (reserva == null) {
+	        System.out.println("Autenticación fallida. Verifique el correo y la fecha de nacimiento.");
+	        return;
+	    }
+
+	    System.out.println("\nReserva actual:");
+	    mostrarDetalleReserva(reserva);
+
+	    System.out.println("\n¿Qué desea actualizar?");
+	    System.out.println("1. Cambiar habitación");
+	    System.out.println("2. Cambiar alojamiento");
+	    System.out.print("Seleccione una opción: ");
+	    int opcion = scanner.nextInt();
+	    scanner.nextLine(); // Consumir el salto de línea
+
+	    switch (opcion) {
+	        case 1:
+	            cambiarHabitaciones(reserva, scanner);
+	            break;
+	        case 2:
+	            cambiarAlojamiento(reserva, scanner);
+	            break;
+	        default:
+	            System.out.println("Opción no válida.");
+	    }
+	}
+
+
+
+	private void cambiarHabitaciones(Reserva reserva, Scanner scanner) {
+	    System.out.println("\nHabitaciones actuales en la reserva:");
+	    List<String> tiposActuales = new ArrayList<>(reserva.getHabitacionesPorTipo().keySet());
+	    for (int i = 0; i < tiposActuales.size(); i++) {
+	        String tipo = tiposActuales.get(i);
+	        int cantidad = reserva.getHabitacionesPorTipo().get(tipo);
+	        System.out.println((i + 1) + ". " + tipo + " - " + cantidad + " habitación(es)");
+	    }
+
+	    while (true) {
+	        System.out.print("\nSeleccione el número de la habitación que desea cambiar (o escriba 'fin' para terminar): ");
+	        String input = scanner.nextLine();
+	        if (input.equalsIgnoreCase("fin")) break;
+
+	        int index;
+	        try {
+	            index = Integer.parseInt(input) - 1;
+	        } catch (NumberFormatException e) {
+	            System.out.println("Entrada no válida. Intente de nuevo.");
+	            continue;
+	        }
+
+	        if (index < 0 || index >= tiposActuales.size()) {
+	            System.out.println("Número de habitación no válido. Intente de nuevo.");
+	            continue;
+	        }
+
+	        String tipoActual = tiposActuales.get(index);
+	        int cantidadActual = reserva.getHabitacionesPorTipo().get(tipoActual);
+
+	        // Liberar habitaciones actuales
+	        liberarHabitaciones(reserva, tipoActual, cantidadActual);
+
+	        // Mostrar habitaciones disponibles
+	        System.out.println("\nHabitaciones disponibles en el alojamiento:");
+	        List<Habitacion> habitacionesDisponibles = reserva.getAlojamiento().getHabitaciones().stream()
+	                .filter(h -> h.getTipo().equalsIgnoreCase(tipoActual) && !h.estaOcupada(reserva.getFechaInicio(), reserva.getFechaFin()))
+	                .toList();
+
+	        if (habitacionesDisponibles.isEmpty()) {
+	            System.out.println("No hay habitaciones disponibles de este tipo. Intente de nuevo.");
+	            continue;
+	        }
+
+	        for (int i = 0; i < habitacionesDisponibles.size(); i++) {
+	            Habitacion habitacion = habitacionesDisponibles.get(i);
+	            System.out.println((i + 1) + ". " + habitacion.getTipo() + " - Capacidad: " + habitacion.getCapacidad() + " - Precio: " + habitacion.getPrecio());
+	        }
+
+	        System.out.print("\nSeleccione el número de la nueva habitación: ");
+	        int nuevaHabitacionIndex;
+	        try {
+	            nuevaHabitacionIndex = Integer.parseInt(scanner.nextLine()) - 1;
+	        } catch (NumberFormatException e) {
+	            System.out.println("Entrada no válida. Intente de nuevo.");
+	            continue;
+	        }
+
+	        if (nuevaHabitacionIndex < 0 || nuevaHabitacionIndex >= habitacionesDisponibles.size()) {
+	            System.out.println("Número de habitación no válido. Intente de nuevo.");
+	            continue;
+	        }
+
+	        Habitacion nuevaHabitacion = habitacionesDisponibles.get(nuevaHabitacionIndex);
+
+	        System.out.print("Ingrese la cantidad de habitaciones de este tipo: ");
+	        int nuevaCantidad;
+	        try {
+	            nuevaCantidad = scanner.nextInt();
+	            scanner.nextLine(); // Consumir salto de línea
+	        } catch (NumberFormatException e) {
+	            System.out.println("Entrada no válida. Intente de nuevo.");
+	            continue;
+	        }
+
+	        if (nuevaCantidad <= 0) {
+	            System.out.println("La cantidad debe ser mayor que 0. Intente de nuevo.");
+	            continue;
+	        }
+
+	        // Validar disponibilidad para reservar la cantidad solicitada
+	        if (nuevaCantidad > habitacionesDisponibles.size()) {
+	            System.out.println("No hay suficientes habitaciones disponibles de este tipo. Intente de nuevo.");
+	            continue;
+	        }
+
+	        // Reservar las nuevas habitaciones
+	        for (int i = 0; i < nuevaCantidad; i++) {
+	            nuevaHabitacion.agregarReserva(reserva);
+	        }
+	        reserva.getHabitacionesPorTipo().put(nuevaHabitacion.getTipo(), nuevaCantidad);
+
+	        System.out.println("\nHabitación(es) actualizada(s) con éxito.");
+	    }
+	}
+
+
+	
+	private void liberarHabitaciones(Reserva reserva, String tipoHabitacion, int cantidad) {
+	    List<Habitacion> habitacionesLiberadas = new ArrayList<>();
+	    for (Habitacion habitacion : reserva.getAlojamiento().getHabitaciones()) {
+	        if (habitacion.getTipo().equalsIgnoreCase(tipoHabitacion)) {
+	            for (int i = 0; i < cantidad; i++) {
+	                habitacion.eliminarReserva(reserva);
+	                habitacionesLiberadas.add(habitacion);
+	            }
+	        }
+	    }
+
+	    // Actualizar la reserva eliminando el tipo de habitación si ya no hay reservas de este tipo
+	    reserva.getHabitacionesPorTipo().remove(tipoHabitacion);
+	    System.out.println("Se han liberado " + habitacionesLiberadas.size() + " habitación(es) del tipo " + tipoHabitacion + ".");
+	}
+
+	
+	private void reservarHabitaciones(Reserva reserva, Habitacion habitacion, int cantidad) {
+	    for (int i = 0; i < cantidad; i++) {
+	        habitacion.agregarReserva(reserva);
+	    }
+
+	    // Actualizar el mapa de la reserva con el nuevo tipo de habitación
+	    reserva.getHabitacionesPorTipo().put(habitacion.getTipo(), cantidad);
+	    System.out.println("Se han reservado " + cantidad + " habitación(es) del tipo " + habitacion.getTipo() + ".");
+	}
+
+
+
+
+
+
+
+	public Alojamiento buscarAlojamientoPorReserva(Reserva reserva) {
+		// Buscar el alojamiento a partir de la reserva, considerando tanto las habitaciones como el alojamiento
+		return alojamientos.stream()
+				.filter(a -> a.equals(reserva.getAlojamiento()) && // Comparar directamente con el objeto Alojamiento
+						a.getHabitaciones().stream().anyMatch(h -> h.getReservas().contains(reserva)))
+				.findFirst()
+				.orElse(null);
+	}
+
+
+
+
+	private void cambiarAlojamiento(Reserva reserva, Scanner scanner) {
+	    System.out.println("\nLa reserva actual será eliminada. Por favor, cree una nueva reserva desde el menú principal.");
+	    eliminarReserva(reserva);
+	}
+
+
+
+
+	public void mostrarDetalleReserva(Reserva reserva) {
+	    System.out.println("Cliente: " + reserva.getNombreCliente() + " " + reserva.getApellidoCliente());
+	    System.out.println("Email: " + reserva.getEmail());
+	    System.out.println("Alojamiento: " + reserva.getAlojamiento().getNombre());
+	    System.out.println("Fechas: " + reserva.getFechaInicio() + " a " + reserva.getFechaFin());
+	    System.out.println("Habitaciones reservadas:");
+	    reserva.getHabitacionesPorTipo().forEach((tipo, cantidad) ->
+	            System.out.println("- " + tipo + ": " + cantidad + " habitación(es)"));
+	}
+
+
+
+
+	public Reserva autenticarUsuario(String email, LocalDate fechaNacimiento) {
+		return reservas.stream()
+				.filter(r -> r.getEmail().equalsIgnoreCase(email) && r.getFechaNacimiento().equals(fechaNacimiento))
+				.findFirst()
+				.orElse(null); // Retorna la reserva si la autenticación es exitosa
+	}
+
+	public Alojamiento buscarAlojamientoPorNombre(String nombreAlojamiento) {
+		return alojamientos.stream()
+				.filter(a -> a.getNombre().equalsIgnoreCase(nombreAlojamiento))
+				.findFirst()
+				.orElse(null);
+	}
+
+	public void eliminarReserva(Reserva reserva) {
+		reservas.remove(reserva);
+		System.out.println("La reserva ha sido eliminada.");
+	}
+
+
+
+
+
+
+
+}
+

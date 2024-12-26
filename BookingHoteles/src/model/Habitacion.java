@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Habitacion {
+	private String id; // Identificador único
     private String tipo;
     private double precio;
     private String caracteristicas;
     private int capacidad;
     private List<Reserva> reservas;
 
-    public Habitacion(String tipo, double precio, String caracteristicas, int capacidad) {
+    public Habitacion(String id,String tipo, double precio, String caracteristicas, int capacidad) {
+    	this.id = id;
         this.tipo = tipo;
         this.precio = precio;
         this.caracteristicas = caracteristicas;
@@ -19,15 +21,43 @@ public class Habitacion {
         this.reservas = new ArrayList<>();
     }
     
+    
+    
+    
+    public String getId() {
+		return id;
+	}
+
+
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+
+
+    // Método para verificar si la habitación está disponible para el rango de fechas
     public boolean estaDisponible(LocalDate fechaInicio, LocalDate fechaFin) {
-        // Verificar si hay conflictos de fechas con las reservas existentes
+        // Verificar si hay alguna reserva que se solape con las fechas solicitadas
+        return reservas.stream()
+            .noneMatch(reserva -> (reserva.getFechaInicio().isBefore(fechaFin) && reserva.getFechaFin().isAfter(fechaInicio)));
+    }
+    
+    public boolean estaOcupada(LocalDate fechaInicio, LocalDate fechaFin) {
         for (Reserva reserva : reservas) {
+            // Si las fechas se solapan, la habitación está ocupada
             if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
-                return false; // Hay conflicto de fechas
+                return true;
             }
         }
-        return true; // La habitación está disponible
+        return false; // No está ocupada
     }
+
+    public void eliminarReserva(Reserva reserva) {
+        reservas.remove(reserva);
+        System.out.println("La reserva ha sido eliminada de la habitación: " + tipo);
+    }
+
 
     
     public void agregarReserva(Reserva reserva) {
@@ -74,6 +104,12 @@ public class Habitacion {
     public void setCaracteristicas(String caracteristicas) {
         this.caracteristicas = caracteristicas;
     }
+    
+    @Override
+    public String toString() {
+        return "ID: " + id + " | Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas + " | Capacidad: " + capacidad;
+    }
+
 }
 
 

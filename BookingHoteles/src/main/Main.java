@@ -5,7 +5,9 @@ import model.DiaDeSol;
 import model.Habitacion;
 import model.Reserva;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import java.time.LocalDate;
@@ -65,39 +67,50 @@ public class Main {
 
 
 	private static void inicializarAlojamientos(BookingApp app) {
-		Alojamiento hotel1 = new Alojamiento("Hotel Quindío", "Armenia", "Hotel", 4, 200000);
-		hotel1.agregarHabitacion(new Habitacion("Sencilla", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
-		hotel1.agregarHabitacion(new Habitacion("Sencilla", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
-		hotel1.agregarHabitacion(new Habitacion("Doble", 150000, "2 camas dobles, Vista al mar, Aire acondicionado, Cafetera, TV de pantalla plana, ducha, escritorio", 4));
-		hotel1.agregarHabitacion(new Habitacion("Triple", 200000, "3 camas, Balcón, Mini bar, WiFi, Caja fuerte, TV", 3));
-		hotel1.agregarHabitacion(new Habitacion("Suite", 350000, "1 cama King Size, Jacuzzi, Cocina equipada, Sala de estar, Vista panorámica", 2));
-		hotel1.agregarHabitacion(new Habitacion("Familiar", 250000, "4 camas, Espacio amplio, Área de juegos, Aire acondicionado, Cocina pequeña", 6));
+	    // Inicializar Hotel Quindío
+	    Alojamiento hotel1 = new Alojamiento("Hotel Quindío", "Armenia", "Hotel", 4, 200000);
+	    hotel1.agregarHabitacion("Sencilla", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2);
+	    hotel1.agregarHabitacion("Sencilla", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2);
+	    hotel1.agregarHabitacion("Doble", 150000, "2 camas dobles, Vista al mar, Aire acondicionado, Cafetera, TV de pantalla plana, ducha, escritorio", 4);
+	    hotel1.agregarHabitacion("Triple", 200000, "3 camas, Balcón, Mini bar, WiFi, Caja fuerte, TV", 3);
+	    hotel1.agregarHabitacion("Suite", 350000, "1 cama King Size, Jacuzzi, Cocina equipada, Sala de estar, Vista panorámica", 2);
+	    hotel1.agregarHabitacion("Familiar", 250000, "4 camas, Espacio amplio, Área de juegos, Aire acondicionado, Cocina pequeña", 6);
 
+	    // Inicializar Finca Campestre
+	    Alojamiento finca1 = new Alojamiento("Finca Campestre", "Armenia", "Finca", 5, 250000);
+//	    finca1.agregarHabitacion("Cabaña", 300000, "Cabaña completa, Piscina privada, Cocina equipada", 6);
 
-		Alojamiento finca1 = new Alojamiento("Finca Campestre", "Armenia", "Finca", 5, 250000);
-		finca1.agregarHabitacion(new Habitacion("Cabaña", 300000, "Cabaña completa, Piscina privada, Cocina equipada", 6));
+	    // Agregar alojamientos al sistema
+	    app.agregarAlojamiento(hotel1);
+	    app.agregarAlojamiento(finca1);
 
-		app.agregarAlojamiento(hotel1);
-		app.agregarAlojamiento(finca1);
+	    // Inicializar días de sol
+	    DiaDeSol diaDeSol1 = new DiaDeSol("Resort Caribe Día de Sol", "Cartagena", 5, 120000, 
+	            List.of("Natación", "Kayak", "Spa", "Senderismo"), true, true);
+	    DiaDeSol diaDeSol2 = new DiaDeSol("EcoParque Aventura", "Medellín", 4, 80000, 
+	            List.of("Tirolesa", "Caminata ecológica", "Paintball"), false, true);
+	    DiaDeSol diaDeSol3 = new DiaDeSol("Club Campestre Día Relax", "Cali", 3, 90000, 
+	            List.of("Piscina", "Yoga al aire libre", "Tenis"), true, false);
 
-		// Instancias de Día de Sol
-		DiaDeSol diaDeSol1 = new DiaDeSol("Resort Caribe Día de Sol", "Cartagena", 5, 120000, 
-				List.of("Natación", "Kayak", "Spa", "Senderismo"), true, true);
-
-		DiaDeSol diaDeSol2 = new DiaDeSol("EcoParque Aventura", "Medellín", 4, 80000, 
-				List.of("Tirolesa", "Caminata ecológica", "Paintball"), false, true);
-
-		DiaDeSol diaDeSol3 = new DiaDeSol("Club Campestre Día Relax", "Cali", 3, 90000, 
-				List.of("Piscina", "Yoga al aire libre", "Tenis"), true, false);
-
-		app.agregarAlojamiento(diaDeSol1);
-		app.agregarAlojamiento(diaDeSol2);
-		app.agregarAlojamiento(diaDeSol3);
-
+	    // Agregar días de sol al sistema
+	    app.agregarAlojamiento(diaDeSol1);
+	    app.agregarAlojamiento(diaDeSol2);
+	    app.agregarAlojamiento(diaDeSol3);
 	}
+
+
 	
 	private static void inicializarReservas(BookingApp app) {
 		
+		Map<String, Integer> habitacionesPorTipo = new HashMap<>();
+		
+		habitacionesPorTipo.put("Sencilla", 1);
+		
+		Alojamiento alojamiento = app.buscarAlojamientoPorNombre("Hotel Quindío");
+		
+		app.reservar("pepe", "pepe", LocalDate.of(2003, 3, 24), "pepe", "pepe", "2",
+	            alojamiento, LocalDate.of(2025, 5, 20), LocalDate.of(2025, 5, 25),
+	            habitacionesPorTipo, "14:00");
 		
 	}
 
@@ -168,7 +181,7 @@ public class Main {
 
 
 	private static void realizarReserva(BookingApp app, Scanner scanner) {
-		System.out.print("Ingrese el nombre del hotel: ");
+		System.out.print("Ingrese el nombre del alojamiento: ");
 		String nombreHotel = scanner.nextLine();
 		
 	    // Obtener el alojamiento a partir del nombre
@@ -184,32 +197,72 @@ public class Main {
 
 		System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
 		LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
+		
+		if (alojamiento.getTipo().equalsIgnoreCase("Finca")) {
+			
+			System.out.print("Ingrese el nombre del cliente: ");
+			String nombreCliente = scanner.nextLine();
 
-		System.out.print("Ingrese el tipo de habitación (1.Sencilla, 2.Doble, 3.Triple, 4.Suite, 5.Familiar): ");
-		String tipoHabitacion = switch (scanner.nextInt()) {
-		case 1 -> "Sencilla";
-		case 2 -> "Doble";
-		case 3 -> "Triple";
-		case 4 -> "Suite";
-		case 5 -> "Familiar";
-		default -> throw new IllegalArgumentException("Opción no válida");
-		};
-		scanner.nextLine(); // Consumir el salto de línea
+			System.out.print("Ingrese el apellido del cliente: ");
+			String apellidoCliente = scanner.nextLine();
+			
+			System.out.print("Ingrese la fecha de nacimiento del cliente: ");
+			LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
 
-		System.out.print("Ingrese la cantidad de habitaciones: ");
-		int cantidadHabitaciones = scanner.nextInt();
-		scanner.nextLine(); // Consumir salto de línea
+			System.out.print("Ingrese el email del cliente: ");
+			String email = scanner.nextLine();
+
+			System.out.print("Ingrese la nacionalidad del cliente: ");
+			String nacionalidad = scanner.nextLine();
+
+			System.out.print("Ingrese el teléfono del cliente: ");
+			String telefono = scanner.nextLine();
+
+			System.out.print("Ingrese la hora aproximada de llegada (HH:mm): ");
+			String horaLlegada = scanner.nextLine();
+			
+			app.reservarFinca(nombreCliente, apellidoCliente, fechaNacimiento, email, nacionalidad, telefono,
+		            alojamiento, fechaInicio, fechaFin, horaLlegada);
+			
+			return;
+		}
+		
+	    // Capturar los tipos de habitaciones y cantidades
+	    Map<String, Integer> habitacionesPorTipo = new HashMap<>();
+	    System.out.println("Ingrese los tipos de habitaciones y las cantidades (Escriba 'fin' para terminar)");
+
+	    while (true) {
+	        System.out.print("Ingrese el tipo de habitación (1.Sencilla, 2.Doble, 3.Triple, 4.Suite, 5.Familiar, 6.Fin): ");
+	        String tipoHabitacion = switch (scanner.nextInt()) {
+			case 1 -> "Sencilla";
+			case 2 -> "Doble";
+			case 3 -> "Triple";
+			case 4 -> "Suite";
+			case 5 -> "Familiar";
+			case 6 -> "Fin";
+			default -> throw new IllegalArgumentException("Opción no válida");
+			};
+			scanner.nextLine(); // Consumir el salto de línea
+	        if (tipoHabitacion.equalsIgnoreCase("fin")) break;
+
+	        System.out.print("Cantidad: ");
+	        int cantidad = scanner.nextInt();
+	        scanner.nextLine(); // Consumir salto de línea
+
+	        habitacionesPorTipo.put(tipoHabitacion, cantidad);
+	    }
+
 
 		// Confirmar disponibilidad
-		if (!app.confirmarDisponibilidad(nombreHotel, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones)) {
+		if (!app.confirmarDisponibilidad(nombreHotel, fechaInicio, fechaFin, habitacionesPorTipo)) {
 			return; // Terminar si no hay disponibilidad
 		}
 
 		System.out.print("Ingrese el nombre del cliente: ");
-		String nombre = scanner.nextLine();
+		String nombreCliente = scanner.nextLine();
 
 		System.out.print("Ingrese el apellido del cliente: ");
-		String apellido = scanner.nextLine();
+		String apellidoCliente = scanner.nextLine();
 		
 		System.out.print("Ingrese la fecha de nacimiento del cliente: ");
 		LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
@@ -226,95 +279,18 @@ public class Main {
 		System.out.print("Ingrese la hora aproximada de llegada (HH:mm): ");
 		String horaLlegada = scanner.nextLine();
 
-		app.reservar(nombre, apellido, fechaNacimiento, email, nacionalidad, telefono, alojamiento, fechaInicio, fechaFin,
-				tipoHabitacion, cantidadHabitaciones, horaLlegada);
+		app.reservar(nombreCliente, apellidoCliente, fechaNacimiento, email, nacionalidad, telefono,
+	            alojamiento, fechaInicio, fechaFin, habitacionesPorTipo, horaLlegada);
 	}
 
 	
 	private static void actualizarReserva(BookingApp app, Scanner scanner) {
-		
 		app.actualizarReserva(scanner);
-//	    System.out.print("Ingrese el email del cliente: ");
-//	    String email = scanner.nextLine();
-//
-//	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//	    System.out.print("Ingrese la fecha de nacimiento del cliente (dd/MM/yyyy): ");
-//	    LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
-//
-//	    // Autenticación
-//	    Reserva reserva = app.autenticarUsuario(email, fechaNacimiento);
-//	    if (reserva == null) {
-//	        System.out.println("Autenticación fallida. Verifique el correo y la fecha de nacimiento.");
-//	        return;
-//	    }
-//
-//	    System.out.println("\nReserva actual:");
-//	    app.mostrarDetalleReserva(reserva);
-//
-//	    System.out.println("\n¿Qué desea actualizar?");
-//	    System.out.println("1. Cambiar habitación");
-//	    System.out.println("2. Cambiar alojamiento");
-//	    System.out.print("Seleccione una opción: ");
-//	    int opcion = scanner.nextInt();
-//	    scanner.nextLine(); // Consumir el salto de línea
-//
-//	    switch (opcion) {
-//	        case 1:
-//	            cambiarHabitacion(app, reserva, scanner);
-//	            break;
-//	        case 2:
-////	            cambiarAlojamiento(app, reserva, scanner);
-//	            break;
-//	        default:
-//	            System.out.println("Opción no válida.");
-//	    }
-	}
-
-	private static void cambiarHabitacion(BookingApp app, Reserva reserva, Scanner scanner) {
-		
-		app.cambiarHabitacion(reserva, scanner);
-//	    System.out.println("\nHabitaciones disponibles en el mismo alojamiento:");
-//	    Alojamiento alojamiento = app.buscarAlojamientoPorNombre(reserva.getAlojamiento().getNombre());
-//
-//	    if (alojamiento == null) {
-//	        System.out.println("Error al encontrar el alojamiento.");
-//	        return;
-//	    }
-//
-//	    // Mostrar habitaciones disponibles
-//	    alojamiento.getHabitaciones().stream()
-//	            .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()))
-//	            .forEach(h -> System.out.println(h.getTipo() + " - Capacidad: " + h.getCapacidad() + " - Precio: " + h.getPrecio()));
-//
-//	    System.out.print("Ingrese el nuevo tipo de habitación: ");
-//	    String nuevaHabitacion = scanner.nextLine();
-//
-//	    // Actualizar tipo de habitación en la reserva
-//	    reserva.setTipoHabitacion(nuevaHabitacion);
-//	    System.out.println("Se ha actualizado la reserva con la nueva habitación.");
-//	}
-//
-//	
-//	private static void cambiarAlojamiento(BookingApp app, Reserva reserva, Scanner scanner) {
-//	    System.out.println("\nLa reserva actual será eliminada. Proceda a crear una nueva reserva.");
-//	    app.eliminarReserva(reserva);
-//	    realizarReserva(app, scanner); // Llama al método para realizar una nueva reserva
 	}
 
 
 	private static void mostrarReservas(BookingApp app) {
-//	    if (app.getReservas().isEmpty()) {
-//	        System.out.println("No hay reservas realizadas.");
-//	    } else {
-//	        app.getReservas().forEach(reserva -> {
-//	            System.out.println(reserva);
-//	        });
-//	    }
+		app.mostrarTodasLasReservas();
 	}
 
 }
-
-
-
-
-

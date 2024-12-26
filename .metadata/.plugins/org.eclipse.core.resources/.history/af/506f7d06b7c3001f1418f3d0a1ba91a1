@@ -1,0 +1,118 @@
+package model;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Habitacion {
+	private String id; // Identificador único
+    private String tipo;
+    private double precio;
+    private String caracteristicas;
+    private int capacidad;
+    private List<Reserva> reservas;
+
+    public Habitacion(String id,String tipo, double precio, String caracteristicas, int capacidad) {
+    	this.id = id;
+        this.tipo = tipo;
+        this.precio = precio;
+        this.caracteristicas = caracteristicas;
+        this.capacidad = capacidad;
+        this.reservas = new ArrayList<>();
+    }
+    
+    
+    
+    public String getId() {
+		return id;
+	}
+
+
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+
+
+	public boolean estaDisponible(LocalDate fechaInicio, LocalDate fechaFin) {
+        // Verificar si hay conflictos de fechas con las reservas existentes
+        for (Reserva reserva : reservas) {
+            if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+                return false; // Hay conflicto de fechas
+            }
+        }
+        return true; // La habitación está disponible
+    }
+    
+    public boolean estaOcupada(LocalDate fechaInicio, LocalDate fechaFin) {
+        for (Reserva reserva : reservas) {
+            // Si las fechas se solapan, la habitación está ocupada
+            if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+                return true;
+            }
+        }
+        return false; // No está ocupada
+    }
+
+    public void eliminarReserva(Reserva reserva) {
+        reservas.remove(reserva);
+        System.out.println("La reserva ha sido eliminada de la habitación: " + tipo);
+    }
+
+
+    
+    public void agregarReserva(Reserva reserva) {
+        this.reservas.add(reserva);
+    }
+
+    public List<Reserva> getReservas() {
+        return reservas;
+    }
+
+    public int getCapacidad() {
+        return capacidad;
+    }
+
+    public void setCapacidad(int capacidad) {
+        this.capacidad = capacidad;
+    }
+
+    public void mostrarDetalles() {
+        System.out.println("Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas);
+    }
+
+    // Métodos Getters y Setters
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public String getCaracteristicas() {
+        return caracteristicas;
+    }
+
+    public void setCaracteristicas(String caracteristicas) {
+        this.caracteristicas = caracteristicas;
+    }
+    
+    @Override
+    public String toString() {
+        return "ID: " + id + " | Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas + " | Capacidad: " + capacidad;
+    }
+
+}
+
+
+
