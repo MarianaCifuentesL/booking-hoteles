@@ -1,0 +1,117 @@
+package main;
+
+import model.Alojamiento;
+import model.Habitacion;
+
+import java.util.Scanner;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+
+public class Main {
+	public static void main(String[] args) {
+		BookingApp app = new BookingApp();
+		inicializarAlojamientos(app);
+
+		Scanner scanner = new Scanner(System.in);
+		int opcion;
+
+		do {
+			mostrarMenu();
+			opcion = scanner.nextInt();
+			scanner.nextLine(); // Consumir el salto de línea
+
+			switch (opcion) {
+			case 1:
+				buscarAlojamientos(app, scanner);
+				break;
+			case 2:
+				realizarReserva(app, scanner);
+				break;
+			case 3:
+				mostrarReservas(app);
+				break;
+			case 4:
+				System.out.println("Gracias por usar la aplicación. ¡Adiós!");
+				break;
+			default:
+				System.out.println("Opción no válida. Intente de nuevo.");
+			}
+		} while (opcion != 4);
+	}
+
+	private static void mostrarMenu() {
+		System.out.println("\n--- Menú Principal ---");
+		System.out.println("1. Buscar alojamientos");
+		System.out.println("2. Realizar una reserva");
+		System.out.println("3. Mostrar reservas realizadas");
+		System.out.println("4. Salir");
+		System.out.print("Seleccione una opción: ");
+	}
+
+	private static void inicializarAlojamientos(BookingApp app) {
+		Alojamiento hotel1 = new Alojamiento("Hotel Quindío", "Armenia", "Hotel", 4, 200000);
+		hotel1.agregarHabitacion(new Habitacion("Simple", 100000, "Cama sencilla, WiFi, Aire Acondicionado", 2));
+		hotel1.agregarHabitacion(new Habitacion("Doble", 150000, "2 camas, TV, Vista al mar", 4));
+
+		Alojamiento finca1 = new Alojamiento("Finca Campestre", "Armenia", "Finca", 5, 250000);
+		finca1.agregarHabitacion(new Habitacion("Cabaña", 300000, "Cabaña completa, Piscina privada, Cocina equipada", 6));
+
+		app.agregarAlojamiento(hotel1);
+		app.agregarAlojamiento(finca1);
+	}
+
+
+	private static void buscarAlojamientos(BookingApp app, Scanner scanner) {
+		String tipo;
+		System.out.print("Ingrese la ciudad: ");
+		String ciudad = scanner.nextLine();
+		System.out.print("Ingrese el tipo de alojamiento: (1.Hotel, 2.Apartamento, 3.Finca, 4.Día de Sol): ");
+
+		if (scanner.nextLine().equals("1")) {
+			tipo = "Hotel";
+		} else {
+			if (scanner.nextLine().equals("2")) {
+				tipo = "Apartamento";
+			} else {
+				if (scanner.nextLine().equals("3")) {
+					tipo = "Finca";
+				} else {
+					tipo = "Dia de Sol";
+				}
+			}
+		}
+//		String tipo = scanner.nextLine();
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+		System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
+		LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
+
+		System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
+		LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
+
+		System.out.print("Ingrese la cantidad de adultos: ");
+		int cantidadAdultos = scanner.nextInt();
+		System.out.print("Ingrese la cantidad de niños: ");
+		int cantidadNiños = scanner.nextInt();
+		System.out.print("Ingrese la cantidad de habitaciones: ");
+		int cantidadHabitaciones = scanner.nextInt();
+
+		app.buscarAlojamientos(ciudad, tipo, fechaInicio, fechaFin, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
+	}
+
+	private static void realizarReserva(BookingApp app, Scanner scanner) {
+		// Lógica para realizar reservas
+	}
+
+	private static void mostrarReservas(BookingApp app) {
+		// Lógica para mostrar reservas
+	}
+}
+
+
+
+
+

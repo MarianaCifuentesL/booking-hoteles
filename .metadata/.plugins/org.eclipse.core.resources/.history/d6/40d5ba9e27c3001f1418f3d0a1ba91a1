@@ -1,0 +1,45 @@
+package model;
+
+public class Habitacion {
+    private String tipo;
+    private double precio;
+    private String caracteristicas;
+
+    public Habitacion(String tipo, double precio, String caracteristicas) {
+        this.tipo = tipo;
+        this.precio = precio;
+        this.caracteristicas = caracteristicas;
+    }
+
+    public void mostrarDetalles() {
+        System.out.println("Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas);
+    }
+
+    // Métodos Getters y Setters
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public String getCaracteristicas() {
+        return caracteristicas;
+    }
+
+    public void setCaracteristicas(String caracteristicas) {
+        this.caracteristicas = caracteristicas;
+    }
+}
+
+
+

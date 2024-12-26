@@ -1,0 +1,143 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.List;
+import model.Alojamiento;
+import model.DiaDeSol;
+import model.Habitacion;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+
+public class BookingApp {
+    private List<Alojamiento> alojamientos;
+
+    public BookingApp() {
+        this.alojamientos = new ArrayList<>();
+    }
+
+    public void agregarAlojamiento(Alojamiento alojamiento) {
+        this.alojamientos.add(alojamiento);
+    }
+
+    public void buscarAlojamientos(String ciudad, String tipo, LocalDate fechaInicio, LocalDate fechaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+        System.out.println("\n--- Resultados de búsqueda para: " + tipo + " en " + ciudad + " ---");
+        boolean encontrado = false;
+
+        if (tipo.equalsIgnoreCase("Día de Sol")) {
+            int totalPersonas = cantidadAdultos + cantidadNiños;
+
+            for (Alojamiento a : alojamientos) {
+            	System.out.println(a.getNombre());
+            	System.out.println(a.getCiudad());
+                if (a.getCiudad().equalsIgnoreCase(ciudad) && a instanceof DiaDeSol) {
+                    DiaDeSol diaDeSol = (DiaDeSol) a;
+
+                    // Mostrar actividades y costos
+                    System.out.println("Nombre: " + diaDeSol.getNombre());
+                    System.out.println("Calificación: " + diaDeSol.getCalificacion() + " estrellas");
+                    System.out.println("Actividades: " + String.join(", ", diaDeSol.getActividades()));
+                    System.out.println("Incluye Almuerzo: " + (diaDeSol.isIncluyeAlmuerzo() ? "Sí" : "No"));
+                    System.out.println("Incluye Refrigerio: " + (diaDeSol.isIncluyeRefrigerio() ? "Sí" : "No"));
+                    System.out.println("Precio por persona: " + diaDeSol.getPrecioDia());
+                    System.out.println("Costo total para " + totalPersonas + " personas: " + (diaDeSol.getPrecioDia() * totalPersonas));
+                    encontrado = true;
+                }
+            }
+        } else {
+            long diasEstadia = ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1;
+
+            for (Alojamiento a : alojamientos) {
+                if (a.getCiudad().equalsIgnoreCase(ciudad) && a.getTipo().equalsIgnoreCase(tipo)) {
+                    boolean tieneCapacidad = verificarCapacidad(a, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
+                    if (!tieneCapacidad) continue;
+
+                    double precioBase = obtenerPrecioHabitacionMasSimple(a) * cantidadHabitaciones * diasEstadia;
+                    double precioFinal = aplicarDescuentosYAumentos(precioBase, fechaInicio, fechaFin);
+                    double ajuste = precioFinal - precioBase;
+
+                    System.out.println("Nombre: " + a.getNombre());
+                    System.out.println("Calificación: " + a.getCalificacion());
+                    System.out.println("Precio por noche: " + obtenerPrecioHabitacionMasSimple(a));
+                    System.out.println("Precio total (sin ajustes): " + precioBase);
+                    System.out.println((ajuste >= 0 ? "Aumento aplicado: " : "Descuento aplicado: ") + Math.abs(ajuste));
+                    System.out.println("Precio total (con ajustes): " + precioFinal);
+                    encontrado = true;
+                }
+            }
+        }
+
+        if (!encontrado) {
+            System.out.println("No se encontraron alojamientos que cumplan con los criterios.");
+        }
+    }
+
+
+
+    private boolean verificarCapacidad(Alojamiento alojamiento, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+        int totalPersonas = cantidadAdultos + cantidadNiños;
+
+        // Obtener todas las habitaciones disponibles
+        List<Habitacion> habitaciones = alojamiento.getHabitaciones();
+
+        // Validar que hay suficientes habitaciones para la cantidad solicitada
+        if (habitaciones.size() < cantidadHabitaciones) {
+            return false; // No hay suficientes habitaciones disponibles
+        }
+
+        // Generar todas las combinaciones posibles de habitaciones de tamaño "cantidadHabitaciones"
+        List<List<Habitacion>> combinaciones = generarCombinaciones(habitaciones, cantidadHabitaciones);
+
+        // Verificar si alguna combinación cumple con la capacidad requerida
+        for (List<Habitacion> combinacion : combinaciones) {
+            int capacidadTotal = combinacion.stream().mapToInt(Habitacion::getCapacidad).sum();
+            if (capacidadTotal >= totalPersonas) {
+                return true; // Hay una combinación válida
+            }
+        }
+
+        return false; // No se encontró una combinación que cumpla
+    }
+    
+    private List<List<Habitacion>> generarCombinaciones(List<Habitacion> habitaciones, int cantidad) {
+        List<List<Habitacion>> resultado = new ArrayList<>();
+        generarCombinacionesRecursivo(habitaciones, new ArrayList<>(), 0, cantidad, resultado);
+        return resultado;
+    }
+
+    private void generarCombinacionesRecursivo(List<Habitacion> habitaciones, List<Habitacion> combinacionActual, 
+                                               int indice, int cantidad, List<List<Habitacion>> resultado) {
+        if (combinacionActual.size() == cantidad) {
+            resultado.add(new ArrayList<>(combinacionActual)); // Agregar combinación válida
+            return;
+        }
+
+        for (int i = indice; i < habitaciones.size(); i++) {
+            combinacionActual.add(habitaciones.get(i));
+            generarCombinacionesRecursivo(habitaciones, combinacionActual, i + 1, cantidad, resultado);
+            combinacionActual.remove(combinacionActual.size() - 1); // Retroceder
+        }
+    }
+
+
+
+    private double obtenerPrecioHabitacionMasSimple(Alojamiento alojamiento) {
+        return alojamiento.getHabitaciones().stream()
+                .mapToDouble(Habitacion::getPrecio)
+                .min()
+                .orElse(0);
+    }
+
+    private double aplicarDescuentosYAumentos(double precioBase, LocalDate fechaInicio, LocalDate fechaFin) {
+        if (fechaFin.getDayOfMonth() >= 25) {
+            return precioBase * 1.15;
+        } else if (fechaInicio.getDayOfMonth() >= 10 && fechaFin.getDayOfMonth() <= 15) {
+            return precioBase * 1.10;
+        } else if (fechaInicio.getDayOfMonth() >= 5 && fechaFin.getDayOfMonth() <= 10) {
+            return precioBase * 0.92;
+        }
+        return precioBase;
+    }
+}
+

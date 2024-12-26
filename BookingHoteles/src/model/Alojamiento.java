@@ -1,35 +1,69 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Alojamiento {
     private String nombre;
-    private String tipo; // Ejemplo: "Hotel", "Apartamento", "Finca", "Día de Sol"
-    private int calificacion; // Del 1 al 5
-    private double precioBasePorNoche;
     private String ciudad;
+    private String tipo; // Hotel, Apartamento, Finca, Día de Sol
+    private int calificacion; // Del 1 al 5
+    private double precioPorNoche;
+    private List<Habitacion> habitaciones;
 
-    public Alojamiento(String nombre, String tipo, String ciudad, int calificacion, double precioBasePorNoche) {
+    public Alojamiento(String nombre, String ciudad, String tipo, int calificacion, double precioPorNoche) {
         this.nombre = nombre;
+        this.ciudad = ciudad;
         this.tipo = tipo;
         this.calificacion = calificacion;
-        this.precioBasePorNoche = precioBasePorNoche;
-        this.ciudad = ciudad;
-    }
-
-    // Getters y Setters
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+        this.precioPorNoche = precioPorNoche;
+        this.habitaciones = new ArrayList<>();
     }
     
+
+    public Alojamiento(String nombre, String ciudad, String tipo, int calificacion) {
+		super();
+		this.nombre = nombre;
+		this.ciudad = ciudad;
+		this.tipo = tipo;
+		this.calificacion = calificacion;
+	}
+
+
+
+	// Métodos getters y setters (añadido `ciudad`)
     public String getCiudad() {
         return ciudad;
     }
 
     public void setCiudad(String ciudad) {
         this.ciudad = ciudad;
+    }
+
+    // Métodos para agregar y mostrar habitaciones
+    public void agregarHabitacion(Habitacion habitacion) {
+        this.habitaciones.add(habitacion);
+    }
+
+    public void mostrarInformacion() {
+        System.out.println("Nombre: " + nombre + " | Tipo: " + tipo + " | Calificación: " + calificacion);
+        System.out.println("Precio por noche: " + precioPorNoche);
+        System.out.println("Habitaciones disponibles:");
+        for (Habitacion h : habitaciones) {
+            h.mostrarDetalles();
+        }
+    }
+
+    // Métodos Getters y Setters
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getTipo() {
@@ -48,16 +82,19 @@ public class Alojamiento {
         this.calificacion = calificacion;
     }
 
-    public double getPrecioBasePorNoche() {
-        return precioBasePorNoche;
+    public double getPrecioPorNoche() {
+        return precioPorNoche;
     }
 
-    public void setPrecioBasePorNoche(double precioBasePorNoche) {
-        this.precioBasePorNoche = precioBasePorNoche;
+    public void setPrecioPorNoche(double precioPorNoche) {
+        this.precioPorNoche = precioPorNoche;
     }
 
-    @Override
-    public String toString() {
-        return "Alojamiento: " + nombre + " | Tipo: " + tipo + " | Calificación: " + calificacion + " estrellas";
+    public List<Habitacion> getHabitaciones() {
+        return habitaciones;
+    }
+
+    public void setHabitaciones(List<Habitacion> habitaciones) {
+        this.habitaciones = habitaciones;
     }
 }

@@ -1,0 +1,75 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.List;
+import model.Alojamiento;
+import model.Habitacion;
+
+public class BookingApp {
+    private List<Alojamiento> alojamientos;
+
+    public BookingApp() {
+        this.alojamientos = new ArrayList<>();
+    }
+
+    public void agregarAlojamiento(Alojamiento alojamiento) {
+        this.alojamientos.add(alojamiento);
+    }
+
+    public void buscarAlojamientos(String ciudad, String tipo, int diaInicio, int diaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+        System.out.println("\n--- Resultados de búsqueda para: " + tipo + " en " + ciudad + " ---");
+        boolean encontrado = false;
+
+        for (Alojamiento a : alojamientos) {
+            if (a.getTipo().equalsIgnoreCase(tipo)) {
+                if (tipo.equalsIgnoreCase("Día de Sol")) {
+                    System.out.println("Nombre: " + a.getNombre());
+                    System.out.println("Calificación: " + a.getCalificacion());
+                    System.out.println("Precio por persona: " + a.getPrecioPorNoche());
+                    System.out.println("Actividades disponibles:");
+                    for (Habitacion h : a.getHabitaciones()) {
+                        System.out.println("- " + h.getCaracteristicas() + " | Precio: " + h.getPrecio());
+                    }
+                } else {
+                    // Para otros tipos de alojamiento, calcula el precio total
+                    double precioBase = obtenerPrecioHabitacionMasSimple(a) * cantidadHabitaciones * (diaFin - diaInicio + 1);
+                    double precioFinal = aplicarDescuentosYAumentos(precioBase, diaInicio, diaFin);
+                    double ajuste = precioFinal - precioBase;
+
+                    System.out.println("Nombre: " + a.getNombre());
+                    System.out.println("Calificación: " + a.getCalificacion());
+                    System.out.println("Precio por noche: " + obtenerPrecioHabitacionMasSimple(a));
+                    System.out.println("Precio total (sin ajustes): " + precioBase);
+                    System.out.println((ajuste >= 0 ? "Aumento aplicado: " : "Descuento aplicado: ") + Math.abs(ajuste));
+                    System.out.println("Precio total (con ajustes): " + precioFinal);
+                }
+                encontrado = true;
+            }
+        }
+
+        if (!encontrado) {
+            System.out.println("No se encontraron alojamientos que cumplan con los criterios.");
+        }
+    }
+
+
+    private double obtenerPrecioHabitacionMasSimple(Alojamiento alojamiento) {
+        // Busca la habitación con el precio más bajo
+        return alojamiento.getHabitaciones().stream()
+                .mapToDouble(Habitacion::getPrecio)
+                .min()
+                .orElse(0);
+    }
+
+    private double aplicarDescuentosYAumentos(double precioBase, int diaInicio, int diaFin) {
+        // Reglas de ajuste de precios según los días
+        if (diaFin >= 25) {
+            return precioBase * 1.15;
+        } else if (diaInicio >= 10 && diaFin <= 15) {
+            return precioBase * 1.10;
+        } else if (diaInicio >= 5 && diaFin <= 10) {
+            return precioBase * 0.92;
+        }
+        return precioBase;
+    }
+}

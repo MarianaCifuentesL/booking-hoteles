@@ -1,0 +1,51 @@
+package model;
+
+import java.util.List;
+
+public class DiaDeSol extends Alojamiento {
+    private List<String> actividades; // Lista de actividades disponibles
+    private boolean incluyeAlmuerzo;
+    private boolean incluyeRefrigerio;
+
+    public DiaDeSol(String nombre, String ciudad, int calificacion, double precioBasePorNoche, 
+                    List<String> actividades, boolean incluyeAlmuerzo, boolean incluyeRefrigerio) {
+        super(nombre, "Día de Sol", ciudad, calificacion, precioBasePorNoche);
+        this.actividades = actividades;
+        this.incluyeAlmuerzo = incluyeAlmuerzo;
+        this.incluyeRefrigerio = incluyeRefrigerio;
+    }
+
+    // Getters y Setters
+    public List<String> getActividades() {
+        return actividades;
+    }
+
+    public void setActividades(List<String> actividades) {
+        this.actividades = actividades;
+    }
+
+    public boolean isIncluyeAlmuerzo() {
+        return incluyeAlmuerzo;
+    }
+
+    public void setIncluyeAlmuerzo(boolean incluyeAlmuerzo) {
+        this.incluyeAlmuerzo = incluyeAlmuerzo;
+    }
+
+    public boolean isIncluyeRefrigerio() {
+        return incluyeRefrigerio;
+    }
+
+    public void setIncluyeRefrigerio(boolean incluyeRefrigerio) {
+        this.incluyeRefrigerio = incluyeRefrigerio;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + 
+               "\nActividades: " + String.join(", ", actividades) +
+               "\nIncluye Almuerzo: " + (incluyeAlmuerzo ? "Sí" : "No") +
+               "\nIncluye Refrigerio: " + (incluyeRefrigerio ? "Sí" : "No") +
+               "\nPrecio Base: " + getPrecioPorNoche();
+    }
+}
