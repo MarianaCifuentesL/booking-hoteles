@@ -7,14 +7,12 @@ import model.DiaDeSol;
 import model.Habitacion;
 import model.Reserva;
 
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 
 public class BookingApp {
 	private List<Alojamiento> alojamientos;
-	private List<Reserva> reservas;
 
 	public BookingApp() {
 		this.alojamientos = new ArrayList<>();
@@ -146,10 +144,9 @@ public class BookingApp {
 	    
 	    // Buscar el alojamiento por nombre
 	    Alojamiento alojamiento = alojamientos.stream()
-	            .filter(a -> eliminarTildes(a.getNombre()).equalsIgnoreCase(eliminarTildes(nombreHotel)))
+	            .filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel) && a.getTipo().equalsIgnoreCase("Hotel"))
 	            .findFirst()
 	            .orElse(null);
-
 
 	    if (alojamiento == null) {
 	        System.out.println("No se encontró un hotel con el nombre indicado.");
@@ -177,11 +174,6 @@ public class BookingApp {
 	        System.out.println("No hay habitaciones disponibles para las fechas indicadas.");
 	    }
 	}
-	
-    public static String eliminarTildes(String texto) {
-        String normalized = Normalizer.normalize(texto, Normalizer.Form.NFD);
-        return normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-    }
 
 	// Verificar si una habitación está reservada en las fechas indicadas
 	private boolean estaReservada(Habitacion habitacion, LocalDate fechaInicio, LocalDate fechaFin) {
@@ -209,7 +201,7 @@ public class BookingApp {
 			return;
 		}
 
-		if (!verificarDisponibilidad(tipoHabitacion, fechaInicio, fechaFin, cantidadHabitaciones)) {
+		if (!alojamiento.verificarDisponibilidad(tipoHabitacion, fechaInicio, fechaFin, cantidadHabitaciones)) {
 			System.out.println("No hay disponibilidad para las fechas indicadas.");
 			return;
 		}
@@ -220,34 +212,6 @@ public class BookingApp {
 
 		System.out.println("Se ha realizado la reserva con éxito.");
 	}
-	
-	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
-        int habitacionesOcupadas = 0;
-
-        // Verificar cuántas habitaciones están ocupadas para el tipo solicitado
-        for (Reserva reserva : reservas) {
-            if (reserva.getTipoHabitacion().equalsIgnoreCase(tipoHabitacion) &&
-                !(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
-                habitacionesOcupadas += reserva.getCantidadHabitaciones();
-            }
-        }
-
-        // Buscar habitaciones disponibles en el alojamiento
-        for (Alojamiento alojamiento : alojamientos) {
-            // Filtrar habitaciones del tipo solicitado en el alojamiento
-            long habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-                .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion))
-                .count(); // Contamos las habitaciones de ese tipo
-
-            // Si hay suficientes habitaciones disponibles
-            if ((habitacionesDisponibles - habitacionesOcupadas) >= cantidadSolicitada) {
-                return true; // Hay disponibilidad
-            }
-        }
-
-        // Si no hay suficientes habitaciones disponibles
-        return false;
-    }
 
 }
 

@@ -7,7 +7,6 @@ import model.DiaDeSol;
 import model.Habitacion;
 import model.Reserva;
 
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -146,10 +145,9 @@ public class BookingApp {
 	    
 	    // Buscar el alojamiento por nombre
 	    Alojamiento alojamiento = alojamientos.stream()
-	            .filter(a -> eliminarTildes(a.getNombre()).equalsIgnoreCase(eliminarTildes(nombreHotel)))
+	            .filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel) && a.getTipo().equalsIgnoreCase("Hotel"))
 	            .findFirst()
 	            .orElse(null);
-
 
 	    if (alojamiento == null) {
 	        System.out.println("No se encontró un hotel con el nombre indicado.");
@@ -177,11 +175,6 @@ public class BookingApp {
 	        System.out.println("No hay habitaciones disponibles para las fechas indicadas.");
 	    }
 	}
-	
-    public static String eliminarTildes(String texto) {
-        String normalized = Normalizer.normalize(texto, Normalizer.Form.NFD);
-        return normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-    }
 
 	// Verificar si una habitación está reservada en las fechas indicadas
 	private boolean estaReservada(Habitacion habitacion, LocalDate fechaInicio, LocalDate fechaFin) {

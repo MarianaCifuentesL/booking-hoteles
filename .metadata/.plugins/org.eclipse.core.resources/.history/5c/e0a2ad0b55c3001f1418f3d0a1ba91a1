@@ -1,29 +1,16 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Habitacion {
     private String tipo;
     private double precio;
     private String caracteristicas;
     private int capacidad;
-    private List<Reserva> reservas;
 
     public Habitacion(String tipo, double precio, String caracteristicas, int capacidad) {
         this.tipo = tipo;
         this.precio = precio;
         this.caracteristicas = caracteristicas;
         this.capacidad = capacidad;
-        this.reservas = new ArrayList<>();
-    }
-    
-    public void agregarReserva(Reserva reserva) {
-        this.reservas.add(reserva);
-    }
-
-    public List<Reserva> getReservas() {
-        return reservas;
     }
 
     public int getCapacidad() {

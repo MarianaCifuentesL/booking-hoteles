@@ -69,7 +69,23 @@ public class Alojamiento {
         }
     }
     
-    
+    public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
+        int habitacionesOcupadas = 0;
+
+        for (Reserva reserva : reservas) {
+            if (reserva.getTipoHabitacion().equalsIgnoreCase(tipoHabitacion) &&
+                !(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+                habitacionesOcupadas += reserva.getCantidadHabitaciones();
+            }
+        }
+
+        int totalDisponibles = habitaciones.stream()
+                                            .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion))
+                                            .mapToInt(Habitacion::getCantidad)
+                                            .sum();
+        return (totalDisponibles - habitacionesOcupadas) >= cantidadSolicitada;
+    }
+
 
     // Métodos Getters y Setters
     public String getNombre() {

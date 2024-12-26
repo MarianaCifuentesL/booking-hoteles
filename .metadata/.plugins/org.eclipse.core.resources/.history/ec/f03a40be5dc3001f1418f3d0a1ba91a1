@@ -1,0 +1,10 @@
+package util;
+
+import java.text.Normalizer;
+
+public class Utils {
+    public static String eliminarTildes(String texto) {
+        String normalized = Normalizer.normalize(texto, Normalizer.Form.NFD);
+        return normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+    }
+}

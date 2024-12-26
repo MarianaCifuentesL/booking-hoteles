@@ -54,9 +54,7 @@ public class Main {
 		System.out.println("1. Buscar alojamientos");
 		System.out.println("2. Realizar una reserva");
 		System.out.println("3. Mostrar reservas realizadas");
-		System.out.println("4. Confirmar habitaciones");
-		System.out.println("5. Realizar reservas");
-		System.out.println("6. Salir");
+		System.out.println("4. Salir");
 		System.out.print("Seleccione una opción: ");
 	}
 

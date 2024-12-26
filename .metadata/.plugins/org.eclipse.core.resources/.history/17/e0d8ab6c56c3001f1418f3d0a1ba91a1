@@ -35,18 +35,18 @@ public class Main {
 				mostrarReservas(app);
 				break;
 			case 4:
-				confirmarHabitaciones(app, scanner);
+				System.out.println("Gracias por usar la aplicación. ¡Adiós!");
 				break;
 			case 5:
-				realizarReserva(app, scanner);
+			    confirmarHabitaciones(app, scanner);
 			    break;
 			case 6:
-				System.out.println("Gracias por usar la aplicación. ¡Adiós!");
+			    realizarReserva(app, scanner);
 			    break;
 			default:
 				System.out.println("Opción no válida. Intente de nuevo.");
 			}
-		} while (opcion != 6);
+		} while (opcion != 4);
 	}
 
 	private static void mostrarMenu() {
@@ -54,15 +54,12 @@ public class Main {
 		System.out.println("1. Buscar alojamientos");
 		System.out.println("2. Realizar una reserva");
 		System.out.println("3. Mostrar reservas realizadas");
-		System.out.println("4. Confirmar habitaciones");
-		System.out.println("5. Realizar reservas");
-		System.out.println("6. Salir");
+		System.out.println("4. Salir");
 		System.out.print("Seleccione una opción: ");
 	}
 
 	private static void inicializarAlojamientos(BookingApp app) {
 		Alojamiento hotel1 = new Alojamiento("Hotel Quindío", "Armenia", "Hotel", 4, 200000);
-		hotel1.agregarHabitacion(new Habitacion("Simple", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
 		hotel1.agregarHabitacion(new Habitacion("Simple", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
 		hotel1.agregarHabitacion(new Habitacion("Doble", 150000, "2 camas dobles, Vista al mar, Aire acondicionado, Cafetera, TV de pantalla plana, ducha, escritorio", 4));
 		hotel1.agregarHabitacion(new Habitacion("Triple", 200000, "3 camas, Balcón, Mini bar, WiFi, Caja fuerte, TV", 3));

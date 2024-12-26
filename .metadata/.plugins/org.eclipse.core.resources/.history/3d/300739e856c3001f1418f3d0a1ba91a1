@@ -35,18 +35,18 @@ public class Main {
 				mostrarReservas(app);
 				break;
 			case 4:
-				confirmarHabitaciones(app, scanner);
+				System.out.println("Gracias por usar la aplicación. ¡Adiós!");
 				break;
 			case 5:
-				realizarReserva(app, scanner);
+			    confirmarHabitaciones(app, scanner);
 			    break;
 			case 6:
-				System.out.println("Gracias por usar la aplicación. ¡Adiós!");
+			    realizarReserva(app, scanner);
 			    break;
 			default:
 				System.out.println("Opción no válida. Intente de nuevo.");
 			}
-		} while (opcion != 6);
+		} while (opcion != 4);
 	}
 
 	private static void mostrarMenu() {
@@ -54,9 +54,7 @@ public class Main {
 		System.out.println("1. Buscar alojamientos");
 		System.out.println("2. Realizar una reserva");
 		System.out.println("3. Mostrar reservas realizadas");
-		System.out.println("4. Confirmar habitaciones");
-		System.out.println("5. Realizar reservas");
-		System.out.println("6. Salir");
+		System.out.println("4. Salir");
 		System.out.print("Seleccione una opción: ");
 	}
 
