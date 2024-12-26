@@ -1,6 +1,5 @@
 package model;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,17 +17,6 @@ public class Habitacion {
         this.capacidad = capacidad;
         this.reservas = new ArrayList<>();
     }
-    
-    public boolean estaDisponible(LocalDate fechaInicio, LocalDate fechaFin) {
-        // Verificar si hay conflictos de fechas con las reservas existentes
-        for (Reserva reserva : reservas) {
-            if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
-                return false; // Hay conflicto de fechas
-            }
-        }
-        return true; // La habitación está disponible
-    }
-
     
     public void agregarReserva(Reserva reserva) {
         this.reservas.add(reserva);

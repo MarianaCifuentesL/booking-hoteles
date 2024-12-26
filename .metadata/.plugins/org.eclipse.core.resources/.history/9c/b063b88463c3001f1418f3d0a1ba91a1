@@ -12,10 +12,9 @@ public class Reserva {
     private LocalDate fechaFin;
     private String tipoHabitacion;
     private int cantidadHabitaciones;
-    private String horaLlegada; // Nueva propiedad
 
     public Reserva(String nombreCliente, String apellidoCliente, String email, String nacionalidad, String telefono,
-                   LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, String horaLlegada) {
+                   LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones) {
         this.nombreCliente = nombreCliente;
         this.apellidoCliente = apellidoCliente;
         this.email = email;
@@ -25,16 +24,6 @@ public class Reserva {
         this.fechaFin = fechaFin;
         this.tipoHabitacion = tipoHabitacion;
         this.cantidadHabitaciones = cantidadHabitaciones;
-        this.horaLlegada = horaLlegada; // Inicializar
-    }
-
-    // Getter y Setter para horaLlegada
-    public String getHoraLlegada() {
-        return horaLlegada;
-    }
-
-    public void setHoraLlegada(String horaLlegada) {
-        this.horaLlegada = horaLlegada;
     }
 
 	public String getNombreCliente() {

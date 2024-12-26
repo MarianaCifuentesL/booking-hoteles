@@ -18,7 +18,6 @@ public class BookingApp {
 
 	public BookingApp() {
 		this.alojamientos = new ArrayList<>();
-		this.reservas = new ArrayList<>();  // Asegúrate de inicializar esta lista
 	}
 
 	public void agregarAlojamiento(Alojamiento alojamiento) {
@@ -141,68 +140,67 @@ public class BookingApp {
 		}
 		return precioBase;
 	}
-
+	
 	public void confirmarHabitaciones(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
-		System.out.println("\n--- Confirmar habitaciones para: " + nombreHotel + " ---");
+	    System.out.println("\n--- Confirmar habitaciones para: " + nombreHotel + " ---");
+	    
+	    // Buscar el alojamiento por nombre
+	    Alojamiento alojamiento = alojamientos.stream()
+	            .filter(a -> eliminarTildes(a.getNombre()).equalsIgnoreCase(eliminarTildes(nombreHotel)))
+	            .findFirst()
+	            .orElse(null);
 
-		// Buscar el alojamiento por nombre
-		Alojamiento alojamiento = alojamientos.stream()
-				.filter(a -> eliminarTildes(a.getNombre()).equalsIgnoreCase(eliminarTildes(nombreHotel)))
-				.findFirst()
-				.orElse(null);
 
+	    if (alojamiento == null) {
+	        System.out.println("No se encontró un hotel con el nombre indicado.");
+	        return;
+	    }
 
-		if (alojamiento == null) {
-			System.out.println("No se encontró un hotel con el nombre indicado.");
-			return;
-		}
+	    // Total de personas que se alojarán
+	    int totalPersonas = cantidadAdultos + cantidadNiños;
 
-		// Total de personas que se alojarán
-		int totalPersonas = cantidadAdultos + cantidadNiños;
+	    // Verificar habitaciones disponibles
+	    boolean disponibilidad = false;
 
-		// Verificar habitaciones disponibles
-		boolean disponibilidad = false;
+	    for (Habitacion habitacion : alojamiento.getHabitaciones()) {
+	        if (habitacion.getCapacidad() >= totalPersonas && !estaReservada(habitacion, fechaInicio, fechaFin)) {
+	            // Mostrar detalles de la habitación
+	            System.out.println("\nTipo de habitación: " + habitacion.getTipo());
+	            System.out.println("Características: " + habitacion.getCaracteristicas());
+	            System.out.println("Capacidad: " + habitacion.getCapacidad() + " personas");
+	            System.out.println("Precio por noche: " + habitacion.getPrecio());
+	            disponibilidad = true;
+	        }
+	    }
 
-		for (Habitacion habitacion : alojamiento.getHabitaciones()) {
-			if (habitacion.getCapacidad() >= totalPersonas && !estaReservada(habitacion, fechaInicio, fechaFin)) {
-				// Mostrar detalles de la habitación
-				System.out.println("\nTipo de habitación: " + habitacion.getTipo());
-				System.out.println("Características: " + habitacion.getCaracteristicas());
-				System.out.println("Capacidad: " + habitacion.getCapacidad() + " personas");
-				System.out.println("Precio por noche: " + habitacion.getPrecio());
-				disponibilidad = true;
-			}
-		}
-
-		if (!disponibilidad) {
-			System.out.println("No hay habitaciones disponibles para las fechas indicadas.");
-		}
+	    if (!disponibilidad) {
+	        System.out.println("No hay habitaciones disponibles para las fechas indicadas.");
+	    }
 	}
-
-	public static String eliminarTildes(String texto) {
-		String normalized = Normalizer.normalize(texto, Normalizer.Form.NFD);
-		return normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-	}
+	
+    public static String eliminarTildes(String texto) {
+        String normalized = Normalizer.normalize(texto, Normalizer.Form.NFD);
+        return normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+    }
 
 	// Verificar si una habitación está reservada en las fechas indicadas
 	private boolean estaReservada(Habitacion habitacion, LocalDate fechaInicio, LocalDate fechaFin) {
-		// Iterar sobre las reservas para verificar conflictos de fechas
-		for (Reserva reserva : habitacion.getReservas()) {
-			if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
-				// Hay un conflicto de fechas con esta reserva
-				return true;
-			}
-		}
-		return false; // No hay conflictos
+	    // Iterar sobre las reservas para verificar conflictos de fechas
+	    for (Reserva reserva : habitacion.getReservas()) {
+	        if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+	            // Hay un conflicto de fechas con esta reserva
+	            return true;
+	        }
+	    }
+	    return false; // No hay conflictos
 	}
 
 
 
 	public void reservar(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion,
-			int cantidadHabitaciones, String nombre, String apellido, String email, String nacionalidad, String telefono, String horaLlegada) {
-		// Buscar el alojamiento
+			int cantidadHabitaciones, String nombre, String apellido, String email, String nacionalidad, String telefono) {
 		Alojamiento alojamiento = alojamientos.stream()
-				.filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
+				.filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel) && a.getTipo().equalsIgnoreCase("Hotel"))
 				.findFirst()
 				.orElse(null);
 
@@ -211,86 +209,45 @@ public class BookingApp {
 			return;
 		}
 
-		// Filtrar habitaciones disponibles del tipo solicitado
-		List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-				.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-				.limit(cantidadHabitaciones) // Seleccionar solo las necesarias
-				.toList();
-
-		if (habitacionesDisponibles.size() < cantidadHabitaciones) {
-			System.out.println("No hay suficientes habitaciones disponibles para las fechas indicadas.");
+		if (!verificarDisponibilidad(tipoHabitacion, fechaInicio, fechaFin, cantidadHabitaciones)) {
+			System.out.println("No hay disponibilidad para las fechas indicadas.");
 			return;
 		}
 
-		// Crear la reserva
-		Reserva nuevaReserva = new Reserva(nombre, apellido, email, nacionalidad, telefono, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones, horaLlegada);
-
-		// Vincular las habitaciones disponibles con la reserva
-		for (Habitacion habitacion : habitacionesDisponibles) {
-			habitacion.agregarReserva(nuevaReserva);
-		}
-
-		// Registrar la reserva en la lista global
-		reservas.add(nuevaReserva);
+		// Crear una nueva reserva
+		Reserva nuevaReserva = new Reserva(nombre, apellido, email, nacionalidad, telefono, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones);
+		alojamiento.agregarReserva(nuevaReserva);
 
 		System.out.println("Se ha realizado la reserva con éxito.");
 	}
 	
-	public boolean confirmarDisponibilidad(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones) {
-	    Alojamiento alojamiento = alojamientos.stream()
-	            .filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
-	            .findFirst()
-	            .orElse(null);
-
-	    if (alojamiento == null) {
-	        System.out.println("No se encontró el hotel indicado.");
-	        return false;
-	    }
-
-	    // Filtrar habitaciones disponibles del tipo solicitado
-	    List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-	            .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-	            .toList();
-
-	    if (habitacionesDisponibles.size() >= cantidadHabitaciones) {
-	        System.out.println("Hay disponibilidad para " + cantidadHabitaciones + " habitaciones de tipo " + tipoHabitacion + ".");
-	        return true;
-	    } else {
-	        System.out.println("No hay suficientes habitaciones disponibles para las fechas indicadas.");
-	        return false;
-	    }
-	}
-
-
-
-
 	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
-		int habitacionesOcupadas = 0;
+        int habitacionesOcupadas = 0;
 
-		// Verificar cuántas habitaciones están ocupadas para el tipo solicitado
-		for (Reserva reserva : reservas) {
-			if (reserva.getTipoHabitacion().equalsIgnoreCase(tipoHabitacion) &&
-					!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
-				habitacionesOcupadas += reserva.getCantidadHabitaciones();
-			}
-		}
+        // Verificar cuántas habitaciones están ocupadas para el tipo solicitado
+        for (Reserva reserva : reservas) {
+            if (reserva.getTipoHabitacion().equalsIgnoreCase(tipoHabitacion) &&
+                !(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+                habitacionesOcupadas += reserva.getCantidadHabitaciones();
+            }
+        }
 
-		// Buscar habitaciones disponibles en el alojamiento
-		for (Alojamiento alojamiento : alojamientos) {
-			// Filtrar habitaciones del tipo solicitado en el alojamiento
-			long habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-					.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion))
-					.count(); // Contamos las habitaciones de ese tipo
+        // Buscar habitaciones disponibles en el alojamiento
+        for (Alojamiento alojamiento : alojamientos) {
+            // Filtrar habitaciones del tipo solicitado en el alojamiento
+            long habitacionesDisponibles = alojamiento.getHabitaciones().stream()
+                .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion))
+                .count(); // Contamos las habitaciones de ese tipo
 
-			// Si hay suficientes habitaciones disponibles
-			if ((habitacionesDisponibles - habitacionesOcupadas) >= cantidadSolicitada) {
-				return true; // Hay disponibilidad
-			}
-		}
+            // Si hay suficientes habitaciones disponibles
+            if ((habitacionesDisponibles - habitacionesOcupadas) >= cantidadSolicitada) {
+                return true; // Hay disponibilidad
+            }
+        }
 
-		// Si no hay suficientes habitaciones disponibles
-		return false;
-	}
+        // Si no hay suficientes habitaciones disponibles
+        return false;
+    }
 
 }
 

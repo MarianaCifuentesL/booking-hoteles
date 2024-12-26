@@ -199,7 +199,7 @@ public class BookingApp {
 
 
 	public void reservar(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion,
-			int cantidadHabitaciones, String nombre, String apellido, String email, String nacionalidad, String telefono, String horaLlegada) {
+			int cantidadHabitaciones, String nombre, String apellido, String email, String nacionalidad, String telefono) {
 		// Buscar el alojamiento
 		Alojamiento alojamiento = alojamientos.stream()
 				.filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
@@ -223,7 +223,7 @@ public class BookingApp {
 		}
 
 		// Crear la reserva
-		Reserva nuevaReserva = new Reserva(nombre, apellido, email, nacionalidad, telefono, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones, horaLlegada);
+		Reserva nuevaReserva = new Reserva(nombre, apellido, email, nacionalidad, telefono, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones);
 
 		// Vincular las habitaciones disponibles con la reserva
 		for (Habitacion habitacion : habitacionesDisponibles) {
@@ -235,32 +235,6 @@ public class BookingApp {
 
 		System.out.println("Se ha realizado la reserva con éxito.");
 	}
-	
-	public boolean confirmarDisponibilidad(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones) {
-	    Alojamiento alojamiento = alojamientos.stream()
-	            .filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
-	            .findFirst()
-	            .orElse(null);
-
-	    if (alojamiento == null) {
-	        System.out.println("No se encontró el hotel indicado.");
-	        return false;
-	    }
-
-	    // Filtrar habitaciones disponibles del tipo solicitado
-	    List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-	            .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-	            .toList();
-
-	    if (habitacionesDisponibles.size() >= cantidadHabitaciones) {
-	        System.out.println("Hay disponibilidad para " + cantidadHabitaciones + " habitaciones de tipo " + tipoHabitacion + ".");
-	        return true;
-	    } else {
-	        System.out.println("No hay suficientes habitaciones disponibles para las fechas indicadas.");
-	        return false;
-	    }
-	}
-
 
 
 

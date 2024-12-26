@@ -39,10 +39,10 @@ public class Main {
 				break;
 			case 5:
 				realizarReserva(app, scanner);
-			    break;
+				break;
 			case 6:
 				System.out.println("Gracias por usar la aplicación. ¡Adiós!");
-			    break;
+				break;
 			default:
 				System.out.println("Opción no válida. Intente de nuevo.");
 			}
@@ -62,8 +62,8 @@ public class Main {
 
 	private static void inicializarAlojamientos(BookingApp app) {
 		Alojamiento hotel1 = new Alojamiento("Hotel Quindío", "Armenia", "Hotel", 4, 200000);
-		hotel1.agregarHabitacion(new Habitacion("Simple", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
-		hotel1.agregarHabitacion(new Habitacion("Simple", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
+		hotel1.agregarHabitacion(new Habitacion("Sencilla", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
+		hotel1.agregarHabitacion(new Habitacion("Sencilla", 100000, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2));
 		hotel1.agregarHabitacion(new Habitacion("Doble", 150000, "2 camas dobles, Vista al mar, Aire acondicionado, Cafetera, TV de pantalla plana, ducha, escritorio", 4));
 		hotel1.agregarHabitacion(new Habitacion("Triple", 200000, "3 camas, Balcón, Mini bar, WiFi, Caja fuerte, TV", 3));
 		hotel1.agregarHabitacion(new Habitacion("Suite", 350000, "1 cama King Size, Jacuzzi, Cocina equipada, Sala de estar, Vista panorámica", 2));
@@ -75,122 +75,139 @@ public class Main {
 
 		app.agregarAlojamiento(hotel1);
 		app.agregarAlojamiento(finca1);
-		
-	    // Instancias de Día de Sol
-	    DiaDeSol diaDeSol1 = new DiaDeSol("Resort Caribe Día de Sol", "Cartagena", 5, 120000, 
-	            List.of("Natación", "Kayak", "Spa", "Senderismo"), true, true);
 
-	    DiaDeSol diaDeSol2 = new DiaDeSol("EcoParque Aventura", "Medellín", 4, 80000, 
-	            List.of("Tirolesa", "Caminata ecológica", "Paintball"), false, true);
+		// Instancias de Día de Sol
+		DiaDeSol diaDeSol1 = new DiaDeSol("Resort Caribe Día de Sol", "Cartagena", 5, 120000, 
+				List.of("Natación", "Kayak", "Spa", "Senderismo"), true, true);
 
-	    DiaDeSol diaDeSol3 = new DiaDeSol("Club Campestre Día Relax", "Cali", 3, 90000, 
-	            List.of("Piscina", "Yoga al aire libre", "Tenis"), true, false);
+		DiaDeSol diaDeSol2 = new DiaDeSol("EcoParque Aventura", "Medellín", 4, 80000, 
+				List.of("Tirolesa", "Caminata ecológica", "Paintball"), false, true);
 
-	    app.agregarAlojamiento(diaDeSol1);
-	    app.agregarAlojamiento(diaDeSol2);
-	    app.agregarAlojamiento(diaDeSol3);
+		DiaDeSol diaDeSol3 = new DiaDeSol("Club Campestre Día Relax", "Cali", 3, 90000, 
+				List.of("Piscina", "Yoga al aire libre", "Tenis"), true, false);
+
+		app.agregarAlojamiento(diaDeSol1);
+		app.agregarAlojamiento(diaDeSol2);
+		app.agregarAlojamiento(diaDeSol3);
 	}
 
 
 	private static void buscarAlojamientos(BookingApp app, Scanner scanner) {
-	    System.out.print("Ingrese la ciudad: ");
-	    String ciudad = scanner.nextLine();
+		System.out.print("Ingrese la ciudad: ");
+		String ciudad = scanner.nextLine();
 
-	    System.out.print("Ingrese el tipo de alojamiento (1.Hotel, 2.Apartamento, 3.Finca, 4.Día de Sol): ");
-	    String tipo = switch (scanner.nextInt()) {
-	        case 1 -> "Hotel";
-	        case 2 -> "Apartamento";
-	        case 3 -> "Finca";
-	        case 4 -> "Día de Sol";
-	        default -> throw new IllegalArgumentException("Opción no válida");
-	    };
-	    scanner.nextLine(); // Consumir el salto de línea
+		System.out.print("Ingrese el tipo de alojamiento (1.Hotel, 2.Apartamento, 3.Finca, 4.Día de Sol): ");
+		String tipo = switch (scanner.nextInt()) {
+		case 1 -> "Hotel";
+		case 2 -> "Apartamento";
+		case 3 -> "Finca";
+		case 4 -> "Día de Sol";
+		default -> throw new IllegalArgumentException("Opción no válida");
+		};
+		scanner.nextLine(); // Consumir el salto de línea
 
-	    if (tipo.equals("Día de Sol")) {
-	        System.out.print("Ingrese la cantidad de adultos: ");
-	        int cantidadAdultos = scanner.nextInt();
-	        System.out.print("Ingrese la cantidad de niños: ");
-	        int cantidadNiños = scanner.nextInt();
+		if (tipo.equals("Día de Sol")) {
+			System.out.print("Ingrese la cantidad de adultos: ");
+			int cantidadAdultos = scanner.nextInt();
+			System.out.print("Ingrese la cantidad de niños: ");
+			int cantidadNiños = scanner.nextInt();
 
-	        app.buscarAlojamientos(ciudad, tipo, null, null, cantidadAdultos, cantidadNiños, 0);
-	    } else {
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	        System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
-	        LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
+			app.buscarAlojamientos(ciudad, tipo, null, null, cantidadAdultos, cantidadNiños, 0);
+		} else {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
+			LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
 
-	        System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
-	        LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
+			System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
+			LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
 
-	        System.out.print("Ingrese la cantidad de adultos: ");
-	        int cantidadAdultos = scanner.nextInt();
-	        System.out.print("Ingrese la cantidad de niños: ");
-	        int cantidadNiños = scanner.nextInt();
-	        System.out.print("Ingrese la cantidad de habitaciones: ");
-	        int cantidadHabitaciones = scanner.nextInt();
+			System.out.print("Ingrese la cantidad de adultos: ");
+			int cantidadAdultos = scanner.nextInt();
+			System.out.print("Ingrese la cantidad de niños: ");
+			int cantidadNiños = scanner.nextInt();
+			System.out.print("Ingrese la cantidad de habitaciones: ");
+			int cantidadHabitaciones = scanner.nextInt();
 
-	        app.buscarAlojamientos(ciudad, tipo, fechaInicio, fechaFin, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
-	    }
+			app.buscarAlojamientos(ciudad, tipo, fechaInicio, fechaFin, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
+		}
 	}
-	
+
 	// Método auxiliar para confirmar habitaciones
 	private static void confirmarHabitaciones(BookingApp app, Scanner scanner) {
-	    System.out.print("Ingrese el nombre del hotel: ");
-	    String nombreHotel = scanner.nextLine();
+		System.out.print("Ingrese el nombre del hotel: ");
+		String nombreHotel = scanner.nextLine();
 
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	    System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
-	    LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
+		LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
 
-	    System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
-	    LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
+		System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
+		LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
 
-	    System.out.print("Ingrese la cantidad de adultos: ");
-	    int cantidadAdultos = scanner.nextInt();
-	    System.out.print("Ingrese la cantidad de niños: ");
-	    int cantidadNiños = scanner.nextInt();
-	    System.out.print("Ingrese la cantidad de habitaciones: ");
-	    int cantidadHabitaciones = scanner.nextInt();
-	    scanner.nextLine(); // Consumir el salto de línea
+		System.out.print("Ingrese la cantidad de adultos: ");
+		int cantidadAdultos = scanner.nextInt();
+		System.out.print("Ingrese la cantidad de niños: ");
+		int cantidadNiños = scanner.nextInt();
+		System.out.print("Ingrese la cantidad de habitaciones: ");
+		int cantidadHabitaciones = scanner.nextInt();
+		scanner.nextLine(); // Consumir el salto de línea
 
-	    app.confirmarHabitaciones(nombreHotel, fechaInicio, fechaFin, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
+		app.confirmarHabitaciones(nombreHotel, fechaInicio, fechaFin, cantidadAdultos, cantidadNiños, cantidadHabitaciones);
 	}
 
 
 	private static void realizarReserva(BookingApp app, Scanner scanner) {
-	    System.out.print("Ingrese el nombre del hotel: ");
-	    String nombreHotel = scanner.nextLine();
+		System.out.print("Ingrese el nombre del hotel: ");
+		String nombreHotel = scanner.nextLine();
 
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	    System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
-	    LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
+		LocalDate fechaInicio = LocalDate.parse(scanner.nextLine(), formatter);
 
-	    System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
-	    LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
+		System.out.print("Ingrese la fecha de finalización (dd/MM/yyyy): ");
+		LocalDate fechaFin = LocalDate.parse(scanner.nextLine(), formatter);
 
-	    System.out.print("Ingrese el tipo de habitación: ");
-	    String tipoHabitacion = scanner.nextLine();
+		System.out.print("Ingrese el tipo de habitación (1.Sencilla, 2.Doble, 3.Triple, 4.Suite, 5.Familiar): ");
+		String tipoHabitacion = switch (scanner.nextInt()) {
+		case 1 -> "Sencilla";
+		case 2 -> "Doble";
+		case 3 -> "Triple";
+		case 4 -> "Suite";
+		case 5 -> "Familiar";
+		default -> throw new IllegalArgumentException("Opción no válida");
+		};
+		scanner.nextLine(); // Consumir el salto de línea
 
-	    System.out.print("Ingrese la cantidad de habitaciones: ");
-	    int cantidadHabitaciones = scanner.nextInt();
-	    scanner.nextLine(); // Consumir salto de línea
+		System.out.print("Ingrese la cantidad de habitaciones: ");
+		int cantidadHabitaciones = scanner.nextInt();
+		scanner.nextLine(); // Consumir salto de línea
 
-	    System.out.print("Ingrese el nombre del cliente: ");
-	    String nombre = scanner.nextLine();
+		// Confirmar disponibilidad
+		if (!app.confirmarDisponibilidad(nombreHotel, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones)) {
+			return; // Terminar si no hay disponibilidad
+		}
 
-	    System.out.print("Ingrese el apellido del cliente: ");
-	    String apellido = scanner.nextLine();
+		System.out.print("Ingrese el nombre del cliente: ");
+		String nombre = scanner.nextLine();
 
-	    System.out.print("Ingrese el email del cliente: ");
-	    String email = scanner.nextLine();
+		System.out.print("Ingrese el apellido del cliente: ");
+		String apellido = scanner.nextLine();
 
-	    System.out.print("Ingrese la nacionalidad del cliente: ");
-	    String nacionalidad = scanner.nextLine();
+		System.out.print("Ingrese el email del cliente: ");
+		String email = scanner.nextLine();
 
-	    System.out.print("Ingrese el teléfono del cliente: ");
-	    String telefono = scanner.nextLine();
+		System.out.print("Ingrese la nacionalidad del cliente: ");
+		String nacionalidad = scanner.nextLine();
 
-	    app.reservar(nombreHotel, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones, nombre, apellido, email, nacionalidad, telefono);
+		System.out.print("Ingrese el teléfono del cliente: ");
+		String telefono = scanner.nextLine();
+
+		System.out.print("Ingrese la hora aproximada de llegada (HH:mm): ");
+		String horaLlegada = scanner.nextLine();
+
+		app.reservar(nombreHotel, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones, nombre, apellido, email, nacionalidad, telefono, horaLlegada);
 	}
+
 
 	private static void mostrarReservas(BookingApp app) {
 		// Lógica para mostrar reservas

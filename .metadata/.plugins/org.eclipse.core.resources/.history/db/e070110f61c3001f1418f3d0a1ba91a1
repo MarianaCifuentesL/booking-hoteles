@@ -199,10 +199,9 @@ public class BookingApp {
 
 
 	public void reservar(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion,
-			int cantidadHabitaciones, String nombre, String apellido, String email, String nacionalidad, String telefono, String horaLlegada) {
-		// Buscar el alojamiento
+			int cantidadHabitaciones, String nombre, String apellido, String email, String nacionalidad, String telefono) {
 		Alojamiento alojamiento = alojamientos.stream()
-				.filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
+				.filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel) && a.getTipo().equalsIgnoreCase("Hotel"))
 				.findFirst()
 				.orElse(null);
 
@@ -211,57 +210,22 @@ public class BookingApp {
 			return;
 		}
 
-		// Filtrar habitaciones disponibles del tipo solicitado
-		List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-				.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-				.limit(cantidadHabitaciones) // Seleccionar solo las necesarias
-				.toList();
-
-		if (habitacionesDisponibles.size() < cantidadHabitaciones) {
-			System.out.println("No hay suficientes habitaciones disponibles para las fechas indicadas.");
+		if (!verificarDisponibilidad(tipoHabitacion, fechaInicio, fechaFin, cantidadHabitaciones)) {
+			System.out.println("No hay disponibilidad para las fechas indicadas.");
 			return;
 		}
 
-		// Crear la reserva
-		Reserva nuevaReserva = new Reserva(nombre, apellido, email, nacionalidad, telefono, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones, horaLlegada);
+		// Crear una nueva reserva
+		Reserva nuevaReserva = new Reserva(nombre, apellido, email, nacionalidad, telefono, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones);
 
-		// Vincular las habitaciones disponibles con la reserva
-		for (Habitacion habitacion : habitacionesDisponibles) {
-			habitacion.agregarReserva(nuevaReserva);
-		}
+		// Agregar la reserva al alojamiento
+		alojamiento.agregarReserva(nuevaReserva);
 
-		// Registrar la reserva en la lista global
+		// Agregar la reserva a la lista global de reservas
 		reservas.add(nuevaReserva);
 
 		System.out.println("Se ha realizado la reserva con éxito.");
 	}
-	
-	public boolean confirmarDisponibilidad(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones) {
-	    Alojamiento alojamiento = alojamientos.stream()
-	            .filter(a -> a.getNombre().equalsIgnoreCase(nombreHotel))
-	            .findFirst()
-	            .orElse(null);
-
-	    if (alojamiento == null) {
-	        System.out.println("No se encontró el hotel indicado.");
-	        return false;
-	    }
-
-	    // Filtrar habitaciones disponibles del tipo solicitado
-	    List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
-	            .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-	            .toList();
-
-	    if (habitacionesDisponibles.size() >= cantidadHabitaciones) {
-	        System.out.println("Hay disponibilidad para " + cantidadHabitaciones + " habitaciones de tipo " + tipoHabitacion + ".");
-	        return true;
-	    } else {
-	        System.out.println("No hay suficientes habitaciones disponibles para las fechas indicadas.");
-	        return false;
-	    }
-	}
-
-
 
 
 	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
