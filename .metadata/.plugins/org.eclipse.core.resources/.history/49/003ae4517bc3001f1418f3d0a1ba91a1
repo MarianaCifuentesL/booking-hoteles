@@ -232,42 +232,40 @@ public class Main {
 
 	
 	private static void actualizarReserva(BookingApp app, Scanner scanner) {
-		
-		app.actualizarReserva(scanner);
-//	    System.out.print("Ingrese el email del cliente: ");
-//	    String email = scanner.nextLine();
-//
-//	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//	    System.out.print("Ingrese la fecha de nacimiento del cliente (dd/MM/yyyy): ");
-//	    LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
-//
-//	    // Autenticación
-//	    Reserva reserva = app.autenticarUsuario(email, fechaNacimiento);
-//	    if (reserva == null) {
-//	        System.out.println("Autenticación fallida. Verifique el correo y la fecha de nacimiento.");
-//	        return;
-//	    }
-//
-//	    System.out.println("\nReserva actual:");
-//	    app.mostrarDetalleReserva(reserva);
-//
-//	    System.out.println("\n¿Qué desea actualizar?");
-//	    System.out.println("1. Cambiar habitación");
-//	    System.out.println("2. Cambiar alojamiento");
-//	    System.out.print("Seleccione una opción: ");
-//	    int opcion = scanner.nextInt();
-//	    scanner.nextLine(); // Consumir el salto de línea
-//
-//	    switch (opcion) {
-//	        case 1:
-//	            cambiarHabitacion(app, reserva, scanner);
-//	            break;
-//	        case 2:
-////	            cambiarAlojamiento(app, reserva, scanner);
-//	            break;
-//	        default:
-//	            System.out.println("Opción no válida.");
-//	    }
+	    System.out.print("Ingrese el email del cliente: ");
+	    String email = scanner.nextLine();
+
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	    System.out.print("Ingrese la fecha de nacimiento del cliente (dd/MM/yyyy): ");
+	    LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
+
+	    // Autenticación
+	    Reserva reserva = app.autenticarUsuario(email, fechaNacimiento);
+	    if (reserva == null) {
+	        System.out.println("Autenticación fallida. Verifique el correo y la fecha de nacimiento.");
+	        return;
+	    }
+
+	    System.out.println("\nReserva actual:");
+	    app.mostrarDetalleReserva(reserva);
+
+	    System.out.println("\n¿Qué desea actualizar?");
+	    System.out.println("1. Cambiar habitación");
+	    System.out.println("2. Cambiar alojamiento");
+	    System.out.print("Seleccione una opción: ");
+	    int opcion = scanner.nextInt();
+	    scanner.nextLine(); // Consumir el salto de línea
+
+	    switch (opcion) {
+	        case 1:
+	            cambiarHabitacion(app, reserva, scanner);
+	            break;
+	        case 2:
+//	            cambiarAlojamiento(app, reserva, scanner);
+	            break;
+	        default:
+	            System.out.println("Opción no válida.");
+	    }
 	}
 
 	private static void cambiarHabitacion(BookingApp app, Reserva reserva, Scanner scanner) {

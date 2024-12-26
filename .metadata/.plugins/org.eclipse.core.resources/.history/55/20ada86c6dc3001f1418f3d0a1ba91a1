@@ -93,7 +93,15 @@ public class Main {
 		app.agregarAlojamiento(diaDeSol1);
 		app.agregarAlojamiento(diaDeSol2);
 		app.agregarAlojamiento(diaDeSol3);
+		
+		 // Crear una reserva predefinida para pruebas
+	    LocalDate fechaInicio = LocalDate.of(2024, 12, 20);
+	    LocalDate fechaFin = LocalDate.of(2024, 12, 25);
+	    Reserva reservaPrueba = new Reserva("Juan", "Pérez", LocalDate.of(1990, 5, 15), "juan.perez@example.com", 
+	            "Colombiana", "3101234567", fechaInicio, fechaFin, "Sencilla", 1, "14:00");
 
+	    hotel1.getHabitaciones().get(0).agregarReserva(reservaPrueba); // Asociar la reserva a una habitación
+	    app.reservar(reservaPrueba); // Agregar la reserva a la lista global
 	}
 	
 	private static void inicializarReservas(BookingApp app) {
@@ -170,13 +178,6 @@ public class Main {
 	private static void realizarReserva(BookingApp app, Scanner scanner) {
 		System.out.print("Ingrese el nombre del hotel: ");
 		String nombreHotel = scanner.nextLine();
-		
-	    // Obtener el alojamiento a partir del nombre
-	    Alojamiento alojamiento = app.buscarAlojamientoPorNombre(nombreHotel);
-	    if (alojamiento == null) {
-	        System.out.println("El alojamiento ingresado no existe. Intente de nuevo.");
-	        return;
-	    }
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		System.out.print("Ingrese la fecha de inicio (dd/MM/yyyy): ");
@@ -210,12 +211,12 @@ public class Main {
 
 		System.out.print("Ingrese el apellido del cliente: ");
 		String apellido = scanner.nextLine();
-		
-		System.out.print("Ingrese la fecha de nacimiento del cliente: ");
-		LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
 
 		System.out.print("Ingrese el email del cliente: ");
 		String email = scanner.nextLine();
+		
+		System.out.print("Ingrese la fecha de nacimiento del cliente: ");
+		LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
 
 		System.out.print("Ingrese la nacionalidad del cliente: ");
 		String nacionalidad = scanner.nextLine();
@@ -226,92 +227,80 @@ public class Main {
 		System.out.print("Ingrese la hora aproximada de llegada (HH:mm): ");
 		String horaLlegada = scanner.nextLine();
 
-		app.reservar(nombre, apellido, fechaNacimiento, email, nacionalidad, telefono, alojamiento, fechaInicio, fechaFin,
-				tipoHabitacion, cantidadHabitaciones, horaLlegada);
+		app.reservar(nombreHotel, fechaInicio, fechaFin, tipoHabitacion, cantidadHabitaciones, nombre, apellido, fechaNacimiento, email, nacionalidad, telefono, horaLlegada);
 	}
 
 	
 	private static void actualizarReserva(BookingApp app, Scanner scanner) {
-		
-		app.actualizarReserva(scanner);
-//	    System.out.print("Ingrese el email del cliente: ");
-//	    String email = scanner.nextLine();
-//
-//	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//	    System.out.print("Ingrese la fecha de nacimiento del cliente (dd/MM/yyyy): ");
-//	    LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
-//
-//	    // Autenticación
-//	    Reserva reserva = app.autenticarUsuario(email, fechaNacimiento);
-//	    if (reserva == null) {
-//	        System.out.println("Autenticación fallida. Verifique el correo y la fecha de nacimiento.");
-//	        return;
-//	    }
-//
-//	    System.out.println("\nReserva actual:");
-//	    app.mostrarDetalleReserva(reserva);
-//
-//	    System.out.println("\n¿Qué desea actualizar?");
-//	    System.out.println("1. Cambiar habitación");
-//	    System.out.println("2. Cambiar alojamiento");
-//	    System.out.print("Seleccione una opción: ");
-//	    int opcion = scanner.nextInt();
-//	    scanner.nextLine(); // Consumir el salto de línea
-//
-//	    switch (opcion) {
-//	        case 1:
-//	            cambiarHabitacion(app, reserva, scanner);
-//	            break;
-//	        case 2:
-////	            cambiarAlojamiento(app, reserva, scanner);
-//	            break;
-//	        default:
-//	            System.out.println("Opción no válida.");
-//	    }
+	    System.out.print("Ingrese el email del cliente: ");
+	    String email = scanner.nextLine();
+
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	    System.out.print("Ingrese la fecha de nacimiento del cliente (dd/MM/yyyy): ");
+	    LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine(), formatter);
+
+	    // Autenticación
+	    Reserva reserva = app.autenticarUsuario(email, fechaNacimiento);
+	    if (reserva == null) {
+	        System.out.println("Autenticación fallida. Verifique el correo y la fecha de nacimiento.");
+	        return;
+	    }
+
+	    System.out.println("\nReserva actual:");
+	    app.mostrarDetalleReserva(reserva);
+
+	    System.out.println("\n¿Qué desea actualizar?");
+	    System.out.println("1. Cambiar habitación");
+	    System.out.println("2. Cambiar alojamiento");
+	    System.out.print("Seleccione una opción: ");
+	    int opcion = scanner.nextInt();
+	    scanner.nextLine(); // Consumir el salto de línea
+
+	    switch (opcion) {
+	        case 1:
+	            cambiarHabitacion(app, reserva, scanner);
+	            break;
+	        case 2:
+	            cambiarAlojamiento(app, reserva, scanner);
+	            break;
+	        default:
+	            System.out.println("Opción no válida.");
+	    }
 	}
 
 	private static void cambiarHabitacion(BookingApp app, Reserva reserva, Scanner scanner) {
-		
-		app.cambiarHabitacion(reserva, scanner);
-//	    System.out.println("\nHabitaciones disponibles en el mismo alojamiento:");
-//	    Alojamiento alojamiento = app.buscarAlojamientoPorNombre(reserva.getAlojamiento().getNombre());
-//
-//	    if (alojamiento == null) {
-//	        System.out.println("Error al encontrar el alojamiento.");
-//	        return;
-//	    }
-//
-//	    // Mostrar habitaciones disponibles
-//	    alojamiento.getHabitaciones().stream()
-//	            .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()))
-//	            .forEach(h -> System.out.println(h.getTipo() + " - Capacidad: " + h.getCapacidad() + " - Precio: " + h.getPrecio()));
-//
-//	    System.out.print("Ingrese el nuevo tipo de habitación: ");
-//	    String nuevaHabitacion = scanner.nextLine();
-//
-//	    // Actualizar tipo de habitación en la reserva
-//	    reserva.setTipoHabitacion(nuevaHabitacion);
-//	    System.out.println("Se ha actualizado la reserva con la nueva habitación.");
-//	}
-//
-//	
-//	private static void cambiarAlojamiento(BookingApp app, Reserva reserva, Scanner scanner) {
-//	    System.out.println("\nLa reserva actual será eliminada. Proceda a crear una nueva reserva.");
-//	    app.eliminarReserva(reserva);
-//	    realizarReserva(app, scanner); // Llama al método para realizar una nueva reserva
+	    System.out.println("\nHabitaciones disponibles en el mismo alojamiento:");
+	    Alojamiento alojamiento = app.buscarAlojamientoPorNombre(reserva.getTipoHabitacion());
+
+	    if (alojamiento == null) {
+	        System.out.println("Error al encontrar el alojamiento.");
+	        return;
+	    }
+
+	    // Mostrar habitaciones disponibles
+	    alojamiento.getHabitaciones().stream()
+	            .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()))
+	            .forEach(h -> System.out.println(h.getTipo() + " - Capacidad: " + h.getCapacidad() + " - Precio: " + h.getPrecio()));
+
+	    System.out.print("Ingrese el nuevo tipo de habitación: ");
+	    String nuevaHabitacion = scanner.nextLine();
+
+	    // Actualizar tipo de habitación en la reserva
+	    reserva.setTipoHabitacion(nuevaHabitacion);
+	    System.out.println("Se ha actualizado la reserva con la nueva habitación.");
+	}
+
+	
+	private static void cambiarAlojamiento(BookingApp app, Reserva reserva, Scanner scanner) {
+	    System.out.println("\nLa reserva actual será eliminada. Proceda a crear una nueva reserva.");
+	    app.eliminarReserva(reserva);
+	    realizarReserva(app, scanner); // Llama al método para realizar una nueva reserva
 	}
 
 
 	private static void mostrarReservas(BookingApp app) {
-//	    if (app.getReservas().isEmpty()) {
-//	        System.out.println("No hay reservas realizadas.");
-//	    } else {
-//	        app.getReservas().forEach(reserva -> {
-//	            System.out.println(reserva);
-//	        });
-//	    }
+		// Lógica para mostrar reservas
 	}
-
 }
 
 

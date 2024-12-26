@@ -13,15 +13,11 @@ public class Reserva {
     private String tipoHabitacion;
     private int cantidadHabitaciones;
     private String horaLlegada; // Nueva propiedad
-    private LocalDate fechaNacimiento; // Nueva propiedad
-    private Alojamiento alojamiento; // Nueva propiedad que hace referencia al alojamiento
 
-    public Reserva(String nombreCliente, String apellidoCliente, LocalDate fechaNacimiento, String email, String nacionalidad, String telefono,
-    				Alojamiento alojamiento,LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, 
-                   String horaLlegada) {
+    public Reserva(String nombreCliente, String apellidoCliente, String email, String nacionalidad, String telefono,
+                   LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, String horaLlegada) {
         this.nombreCliente = nombreCliente;
         this.apellidoCliente = apellidoCliente;
-        this.fechaNacimiento = fechaNacimiento; // Inicializar
         this.email = email;
         this.nacionalidad = nacionalidad;
         this.telefono = telefono;
@@ -29,29 +25,8 @@ public class Reserva {
         this.fechaFin = fechaFin;
         this.tipoHabitacion = tipoHabitacion;
         this.cantidadHabitaciones = cantidadHabitaciones;
-        this.horaLlegada = horaLlegada;
-        this.alojamiento = alojamiento; // Asignar el alojamiento
-        
+        this.horaLlegada = horaLlegada; // Inicializar
     }
-    
-    // Getter y Setter para alojamiento
-    public Alojamiento getAlojamiento() {
-        return alojamiento;
-    }
-
-    public void setAlojamiento(Alojamiento alojamiento) {
-        this.alojamiento = alojamiento;
-    }
-
-    // Getter y Setter para fechaNacimiento
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
 
     // Getter y Setter para horaLlegada
     public String getHoraLlegada() {

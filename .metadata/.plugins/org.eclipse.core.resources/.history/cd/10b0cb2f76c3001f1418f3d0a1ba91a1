@@ -17,8 +17,8 @@ public class Reserva {
     private Alojamiento alojamiento; // Nueva propiedad que hace referencia al alojamiento
 
     public Reserva(String nombreCliente, String apellidoCliente, LocalDate fechaNacimiento, String email, String nacionalidad, String telefono,
-    				Alojamiento alojamiento,LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, 
-                   String horaLlegada) {
+                   LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, 
+                   String horaLlegada, Alojamiento alojamiento) {
         this.nombreCliente = nombreCliente;
         this.apellidoCliente = apellidoCliente;
         this.fechaNacimiento = fechaNacimiento; // Inicializar

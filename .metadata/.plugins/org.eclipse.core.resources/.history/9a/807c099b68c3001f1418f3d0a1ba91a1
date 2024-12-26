@@ -14,14 +14,12 @@ public class Reserva {
     private int cantidadHabitaciones;
     private String horaLlegada; // Nueva propiedad
     private LocalDate fechaNacimiento; // Nueva propiedad
-    private Alojamiento alojamiento; // Nueva propiedad que hace referencia al alojamiento
 
-    public Reserva(String nombreCliente, String apellidoCliente, LocalDate fechaNacimiento, String email, String nacionalidad, String telefono,
-    				Alojamiento alojamiento,LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, 
-                   String horaLlegada) {
+    public Reserva(String nombreCliente, String apellidoCliente, String email, String nacionalidad, String telefono,
+                   LocalDate fechaInicio, LocalDate fechaFin, String tipoHabitacion, int cantidadHabitaciones, 
+                   String horaLlegada, LocalDate fechaNacimiento) {
         this.nombreCliente = nombreCliente;
         this.apellidoCliente = apellidoCliente;
-        this.fechaNacimiento = fechaNacimiento; // Inicializar
         this.email = email;
         this.nacionalidad = nacionalidad;
         this.telefono = telefono;
@@ -30,17 +28,7 @@ public class Reserva {
         this.tipoHabitacion = tipoHabitacion;
         this.cantidadHabitaciones = cantidadHabitaciones;
         this.horaLlegada = horaLlegada;
-        this.alojamiento = alojamiento; // Asignar el alojamiento
-        
-    }
-    
-    // Getter y Setter para alojamiento
-    public Alojamiento getAlojamiento() {
-        return alojamiento;
-    }
-
-    public void setAlojamiento(Alojamiento alojamiento) {
-        this.alojamiento = alojamiento;
+        this.fechaNacimiento = fechaNacimiento; // Inicializar
     }
 
     // Getter y Setter para fechaNacimiento

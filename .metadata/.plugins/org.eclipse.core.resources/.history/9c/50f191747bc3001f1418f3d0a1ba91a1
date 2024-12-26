@@ -353,53 +353,73 @@ public class BookingApp {
 	        return;
 	    }
 
-	    // Mostrar las habitaciones de la reserva actual
-	    System.out.println("\nHabitaciones actuales en la reserva:");
-	    alojamiento.getHabitaciones().stream()
+	    // Mostrar las habitaciones de la reserva actual como un menú numerado
+	    List<Habitacion> habitacionesReserva = alojamiento.getHabitaciones().stream()
 	        .filter(h -> h.getReservas().contains(reserva)) // Filtrar habitaciones asociadas a esta reserva
-	        .forEach(h -> System.out.println(h.getTipo() + " - Capacidad: " + h.getCapacidad() + " - Precio: " + h.getPrecio()));
+	        .toList();
+
+	    if (habitacionesReserva.isEmpty()) {
+	        System.out.println("No se encontraron habitaciones asociadas a esta reserva.");
+	        return;
+	    }
+
+	    System.out.println("\nHabitaciones actuales en la reserva:");
+	    for (int i = 0; i < habitacionesReserva.size(); i++) {
+	        Habitacion habitacion = habitacionesReserva.get(i);
+	        System.out.println((i + 1) + ". " + habitacion.getTipo() + " - Capacidad: " + habitacion.getCapacidad() + " - Precio: " + habitacion.getPrecio());
+	    }
 
 	    // Pedir al usuario que seleccione la habitación que desea cambiar
-	    System.out.print("\nIngrese el tipo de habitación que desea cambiar: ");
-	    String habitacionActual = scanner.nextLine();
+	    System.out.print("\nSeleccione el número de la habitación que desea cambiar: ");
+	    int opcionHabitacion = scanner.nextInt();
+	    scanner.nextLine(); // Consumir el salto de línea
 
-	    Habitacion habitacionSeleccionada = alojamiento.getHabitaciones().stream()
-	        .filter(h -> h.getTipo().equalsIgnoreCase(habitacionActual) && h.getReservas().contains(reserva))
-	        .findFirst()
-	        .orElse(null);
-
-	    if (habitacionSeleccionada == null) {
-	        System.out.println("Error: La habitación seleccionada no está asociada a esta reserva.");
+	    if (opcionHabitacion < 1 || opcionHabitacion > habitacionesReserva.size()) {
+	        System.out.println("Opción no válida.");
 	        return;
 	    }
 
-	    // Mostrar habitaciones disponibles en el mismo alojamiento
-	    System.out.println("\nHabitaciones disponibles en el alojamiento: " + alojamiento.getNombre());
-	    alojamiento.getHabitaciones().stream()
-	        .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin())) // Filtrar por disponibilidad
-	        .forEach(h -> System.out.println(h.getTipo() + " - Capacidad: " + h.getCapacidad() + " - Precio: " + h.getPrecio()));
+	    Habitacion habitacionSeleccionada = habitacionesReserva.get(opcionHabitacion - 1);
+
+	    // Calcular capacidad requerida para filtrar habitaciones disponibles
+	    int capacidadRequerida = reserva.getCantidadAdultos() + reserva.getCantidadNinos();
+
+	    // Mostrar habitaciones disponibles que cumplan con la capacidad requerida
+	    System.out.println("\nHabitaciones disponibles en el alojamiento que cumplen con la capacidad requerida:");
+	    List<Habitacion> habitacionesDisponibles = alojamiento.getHabitaciones().stream()
+	        .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()) && h.getCapacidad() >= capacidadRequerida)
+	        .toList();
+
+	    if (habitacionesDisponibles.isEmpty()) {
+	        System.out.println("No hay habitaciones disponibles que cumplan con los criterios.");
+	        return;
+	    }
+
+	    for (int i = 0; i < habitacionesDisponibles.size(); i++) {
+	        Habitacion habitacion = habitacionesDisponibles.get(i);
+	        System.out.println((i + 1) + ". " + habitacion.getTipo() + " - Capacidad: " + habitacion.getCapacidad() + " - Precio: " + habitacion.getPrecio());
+	    }
 
 	    // Pedir al usuario que seleccione la nueva habitación
-	    System.out.print("\nIngrese el nuevo tipo de habitación: ");
-	    String nuevaHabitacion = scanner.nextLine();
+	    System.out.print("\nSeleccione el número de la nueva habitación: ");
+	    int opcionNuevaHabitacion = scanner.nextInt();
+	    scanner.nextLine(); // Consumir el salto de línea
 
-	    Habitacion nuevaHabitacionSeleccionada = alojamiento.getHabitaciones().stream()
-	        .filter(h -> h.getTipo().equalsIgnoreCase(nuevaHabitacion) && h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()))
-	        .findFirst()
-	        .orElse(null);
-
-	    if (nuevaHabitacionSeleccionada == null) {
-	        System.out.println("Error: La nueva habitación seleccionada no está disponible.");
+	    if (opcionNuevaHabitacion < 1 || opcionNuevaHabitacion > habitacionesDisponibles.size()) {
+	        System.out.println("Opción no válida.");
 	        return;
 	    }
+
+	    Habitacion nuevaHabitacionSeleccionada = habitacionesDisponibles.get(opcionNuevaHabitacion - 1);
 
 	    // Actualizar la reserva
 	    habitacionSeleccionada.getReservas().remove(reserva); // Eliminar la reserva de la habitación actual
 	    nuevaHabitacionSeleccionada.agregarReserva(reserva); // Agregar la reserva a la nueva habitación
-	    reserva.setTipoHabitacion(nuevaHabitacion); // Actualizar el tipo de habitación en la reserva
+	    reserva.setTipoHabitacion(nuevaHabitacionSeleccionada.getTipo()); // Actualizar el tipo de habitación en la reserva
 
 	    System.out.println("La reserva ha sido actualizada con éxito a la nueva habitación.");
 	}
+
 
 
 	public Alojamiento buscarAlojamientoPorReserva(Reserva reserva) {
