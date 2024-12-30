@@ -67,14 +67,41 @@ public class BookingApp {
 	}
 
 	private void mostrarInformacionDiaDeSol(Alojamiento alojamiento, int totalPersonas) {
+		mostrarDetallesGenerales(alojamiento);
+		mostrarServiciosIncluidos(alojamiento);
+		mostrarCostos(alojamiento, totalPersonas);
+	}
+
+	// Método auxiliar para mostrar los detalles generales del alojamiento
+	private void mostrarDetallesGenerales(Alojamiento alojamiento) {
 		System.out.println("Nombre: " + alojamiento.getNombre());
 		System.out.println("Calificación: " + alojamiento.getCalificacion() + ESTRELLAS);
 		System.out.println("Actividades: " + String.join(", ", alojamiento.getActividades()));
-		System.out.println("Incluye Almuerzo: " + (alojamiento.isIncluyeAlmuerzo() ? "Sí" : "No"));
-		System.out.println("Incluye Refrigerio: " + (alojamiento.isIncluyeRefrigerio() ? "Sí" : "No"));
-		System.out.println("Precio por persona: " + alojamiento.getPrecioPorNoche());
-		System.out.println("Costo total para " + totalPersonas + " personas: " + (alojamiento.getPrecioPorNoche() * totalPersonas));
 	}
+
+	// Método auxiliar para mostrar los servicios incluidos
+	private void mostrarServiciosIncluidos(Alojamiento alojamiento) {
+		System.out.println("Incluye Almuerzo: " + convertirBooleanoTexto(alojamiento.isIncluyeAlmuerzo()));
+		System.out.println("Incluye Refrigerio: " + convertirBooleanoTexto(alojamiento.isIncluyeRefrigerio()));
+	}
+
+	// Método auxiliar para mostrar los costos
+	private void mostrarCostos(Alojamiento alojamiento, int totalPersonas) {
+		double precioPorPersona = alojamiento.getPrecioPorNoche();
+		System.out.println("Precio por persona: " + precioPorPersona);
+		System.out.println("Costo total para " + totalPersonas + " personas: " + calcularCostoTotal(precioPorPersona, totalPersonas));
+	}
+
+	// Método auxiliar para convertir booleano a texto
+	private String convertirBooleanoTexto(boolean valor) {
+		return valor ? "Sí" : "No";
+	}
+
+	// Método auxiliar para calcular el costo total
+	private double calcularCostoTotal(double precioPorPersona, int totalPersonas) {
+		return precioPorPersona * totalPersonas;
+	}
+
 
 
 	private boolean buscarApartamentoOFinca(String ciudad, String tipo, LocalDate fechaInicio, LocalDate fechaFin) {
@@ -107,15 +134,20 @@ public class BookingApp {
 
 	// Método auxiliar para mostrar información del alojamiento
 	private void mostrarInformacionAlojamiento(Alojamiento alojamiento, long diasEstadia, double precioFinal, LocalDate fechaInicio, LocalDate fechaFin) {
-		double precioBase = alojamiento.getPrecioPorNoche() * diasEstadia;
-		double ajuste = precioFinal - precioBase;
+		double precioBase = calcularPrecioBase(alojamiento, diasEstadia);
+		double ajuste = calcularAjuste(precioBase, precioFinal);
 
-		System.out.println("Nombre: " + alojamiento.getNombre());
-		System.out.println("Calificación: " + alojamiento.getCalificacion());
-		System.out.println("Precio por noche: " + alojamiento.getPrecioPorNoche());
-		System.out.println("Precio total (sin ajustes): " + precioBase);
-		System.out.println((ajuste >= 0 ? AUMENTO_APLICADO : DESCUENTO_APLICADO) + Math.abs(ajuste));
-		System.out.println(PRECIO_TOTAL_CON_AJUSTES + precioFinal);
+		mostrarDetallesAlojamiento(alojamiento, precioBase, ajuste, precioFinal);
+	}
+
+	// Cálculo del precio base
+	private double calcularPrecioBase(Alojamiento alojamiento, long diasEstadia) {
+		return alojamiento.getPrecioPorNoche() * diasEstadia;
+	}
+
+	// Cálculo del ajuste (diferencia entre precio final y base)
+	private double calcularAjuste(double precioBase, double precioFinal) {
+		return precioFinal - precioBase;
 	}
 
 	private boolean buscarHotel(String ciudad, LocalDate fechaInicio, LocalDate fechaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
@@ -150,24 +182,52 @@ public class BookingApp {
 	}
 
 	private void mostrarInformacionHotel(Alojamiento alojamiento, double precioBase, double precioFinal, double ajuste) {
+		mostrarDetallesGeneralesHotel(alojamiento);
+		mostrarPreciosHotel(precioBase, precioFinal, ajuste);
+	}
+
+	// Método auxiliar para mostrar los detalles generales del hotel
+	private void mostrarDetallesGeneralesHotel(Alojamiento alojamiento) {
 		System.out.println("Nombre: " + alojamiento.getNombre());
 		System.out.println("Calificación: " + alojamiento.getCalificacion());
 		System.out.println("Precio por noche: " + obtenerPrecioHabitacionMasSimple(alojamiento));
+	}
+
+	// Método auxiliar para mostrar los precios del hotel
+	private void mostrarPreciosHotel(double precioBase, double precioFinal, double ajuste) {
 		System.out.println("Precio total (sin ajustes): " + precioBase);
 		System.out.println((ajuste >= 0 ? "Aumento aplicado: " : "Descuento aplicado: ") + Math.abs(ajuste));
 		System.out.println("Precio total (con ajustes): " + precioFinal);
 	}
 
-	// Métodos auxiliares para mostrar información específica
+
 	private void mostrarInfoDiaDeSol(Alojamiento alojamiento, int totalPersonas) {
+		mostrarDetallesGeneralesDiaDeSol(alojamiento);
+		mostrarServiciosIncluidosDiaDeSol(alojamiento);
+		mostrarCostosDiaDeSol(alojamiento, totalPersonas);
+	}
+
+	// Método auxiliar para mostrar los detalles generales del día de sol
+	private void mostrarDetallesGeneralesDiaDeSol(Alojamiento alojamiento) {
 		System.out.println("Nombre: " + alojamiento.getNombre());
 		System.out.println("Calificación: " + alojamiento.getCalificacion() + " estrellas");
 		System.out.println("Actividades: " + String.join(", ", alojamiento.getActividades()));
-		System.out.println("Incluye Almuerzo: " + (alojamiento.getIncluyeAlmuerzo() ? "Sí" : "No"));
-		System.out.println("Incluye Refrigerio: " + (alojamiento.getIncluyeRefrigerio() ? "Sí" : "No"));
-		System.out.println("Precio por persona: " + alojamiento.getPrecioPorNoche());
-		System.out.println("Costo total para " + totalPersonas + " personas: " + (alojamiento.getPrecioPorNoche() * totalPersonas));
 	}
+
+	// Método auxiliar para mostrar los servicios incluidos en el día de sol
+	private void mostrarServiciosIncluidosDiaDeSol(Alojamiento alojamiento) {
+		System.out.println("Incluye Almuerzo: " + convertirBooleanoTexto(alojamiento.getIncluyeAlmuerzo()));
+		System.out.println("Incluye Refrigerio: " + convertirBooleanoTexto(alojamiento.getIncluyeRefrigerio()));
+	}
+
+	// Método auxiliar para mostrar los costos del día de sol
+	private void mostrarCostosDiaDeSol(Alojamiento alojamiento, int totalPersonas) {
+		double precioPorPersona = alojamiento.getPrecioPorNoche();
+		System.out.println("Precio por persona: " + precioPorPersona);
+		System.out.println("Costo total para " + totalPersonas + " personas: " + calcularCostoTotal(precioPorPersona, totalPersonas));
+	}
+
+
 
 	private void mostrarInfoAlojamiento(Alojamiento alojamiento, int totalPersonas) {
 		System.out.println("Nombre: " + alojamiento.getNombre());
@@ -204,38 +264,63 @@ public class BookingApp {
 	}
 
 	private void mostrarDetallesAlojamiento(Alojamiento alojamiento, double precioBase, double ajuste, double precioFinal) {
+		mostrarInformacionBasicaAlojamiento(alojamiento);
+		mostrarInformacionPrecios(precioBase, ajuste, precioFinal);
+	}
+
+	// Método auxiliar para mostrar la información básica del alojamiento
+	private void mostrarInformacionBasicaAlojamiento(Alojamiento alojamiento) {
 		System.out.println("Nombre: " + alojamiento.getNombre());
 		System.out.println("Calificación: " + alojamiento.getCalificacion());
 		System.out.println("Precio por noche: " + obtenerPrecioHabitacionMasSimple(alojamiento));
+	}
+
+	// Método auxiliar para mostrar los precios del alojamiento
+	private void mostrarInformacionPrecios(double precioBase, double ajuste, double precioFinal) {
 		System.out.println("Precio total (sin ajustes): " + precioBase);
 		System.out.println((ajuste >= 0 ? "Aumento aplicado: " : "Descuento aplicado: ") + Math.abs(ajuste));
 		System.out.println("Precio total (con ajustes): " + precioFinal);
 	}
 
-	private boolean verificarCapacidad(Alojamiento alojamiento, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
-		int totalPersonas = cantidadAdultos + cantidadNiños;
 
-		// Obtener todas las habitaciones disponibles
+	private boolean verificarCapacidad(Alojamiento alojamiento, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+		int totalPersonas = calcularTotalPersonas(cantidadAdultos, cantidadNiños);
 		List<Habitacion> habitaciones = alojamiento.getHabitaciones();
 
-		// Validar que hay suficientes habitaciones para la cantidad solicitada
-		if (habitaciones.size() < cantidadHabitaciones) {
-			return false; // No hay suficientes habitaciones disponibles
+		if (!validarCantidadHabitaciones(habitaciones, cantidadHabitaciones)) {
+			return false;
 		}
 
-		// Generar todas las combinaciones posibles de habitaciones de tamaño "cantidadHabitaciones"
 		List<List<Habitacion>> combinaciones = generarCombinaciones(habitaciones, cantidadHabitaciones);
+		return existeCombinacionValida(combinaciones, totalPersonas);
+	}
 
-		// Verificar si alguna combinación cumple con la capacidad requerida
+	// Método auxiliar para validar si hay suficientes habitaciones disponibles
+	private boolean validarCantidadHabitaciones(List<Habitacion> habitaciones, int cantidadHabitaciones) {
+		return habitaciones.size() >= cantidadHabitaciones;
+	}
+
+	// Método auxiliar para verificar si existe al menos una combinación válida
+	private boolean existeCombinacionValida(List<List<Habitacion>> combinaciones, int totalPersonas) {
 		for (List<Habitacion> combinacion : combinaciones) {
-			int capacidadTotal = combinacion.stream().mapToInt(Habitacion::getCapacidad).sum();
-			if (capacidadTotal >= totalPersonas) {
-				return true; // Hay una combinación válida
+			if (esCombinacionValida(combinacion, totalPersonas)) {
+				return true;
 			}
 		}
-
-		return false; // No se encontró una combinación que cumpla
+		return false;
 	}
+
+	// Método auxiliar para verificar si una combinación específica cumple con la capacidad requerida
+	private boolean esCombinacionValida(List<Habitacion> combinacion, int totalPersonas) {
+		int capacidadTotal = calcularCapacidadTotal(combinacion);
+		return capacidadTotal >= totalPersonas;
+	}
+
+	// Método auxiliar para calcular la capacidad total de una combinación de habitaciones
+	private int calcularCapacidadTotal(List<Habitacion> combinacion) {
+		return combinacion.stream().mapToInt(Habitacion::getCapacidad).sum();
+	}
+
 
 	private List<List<Habitacion>> generarCombinaciones(List<Habitacion> habitaciones, int cantidad) {
 		List<List<Habitacion>> resultado = new ArrayList<>();
@@ -407,19 +492,13 @@ public class BookingApp {
 		return verificarDisponibilidadHabitaciones(alojamiento, fechaInicio, fechaFin, habitacionesPorTipo);
 	}
 
-	// Método auxiliar para verificar la disponibilidad de habitaciones por tipo
+	// Método principal para verificar la disponibilidad de habitaciones por tipo
 	private boolean verificarDisponibilidadHabitaciones(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin, Map<String, Integer> habitacionesPorTipo) {
 		for (Map.Entry<String, Integer> entry : habitacionesPorTipo.entrySet()) {
 			String tipoHabitacion = entry.getKey();
 			int cantidadSolicitada = entry.getValue();
 
-			// Calcular el total de habitaciones disponibles para el tipo solicitado
-			int cantidadDisponible = alojamiento.getHabitaciones().stream()
-					.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-					.mapToInt(Habitacion::getCantidad)
-					.sum();
-			if (cantidadDisponible < cantidadSolicitada) {
-				System.out.println("No hay suficientes habitaciones disponibles para el tipo " + tipoHabitacion + ".");
+			if (!verificarDisponibilidadTipoHabitacion(alojamiento, tipoHabitacion, cantidadSolicitada, fechaInicio, fechaFin)) {
 				return false;
 			}
 		}
@@ -427,23 +506,43 @@ public class BookingApp {
 		return true;
 	}
 
-	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
-		int habitacionesDisponibles = 0;
+	// Método auxiliar para verificar la disponibilidad de un tipo de habitación
+	private boolean verificarDisponibilidadTipoHabitacion(Alojamiento alojamiento, String tipoHabitacion, int cantidadSolicitada, LocalDate fechaInicio, LocalDate fechaFin) {
+		int cantidadDisponible = calcularHabitacionesDisponibles(alojamiento, tipoHabitacion, fechaInicio, fechaFin);
+		if (cantidadDisponible < cantidadSolicitada) {
+			System.out.println("No hay suficientes habitaciones disponibles para el tipo " + tipoHabitacion + ".");
+			return false;
+		}
+		return true;
+	}
 
-		// Verificar habitaciones disponibles en todos los alojamientos
+	// Método auxiliar para calcular la cantidad de habitaciones disponibles para un tipo específico
+	private int calcularHabitacionesDisponibles(Alojamiento alojamiento, String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
+		return alojamiento.getHabitaciones().stream()
+				.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+				.mapToInt(Habitacion::getCantidad)
+				.sum();
+	}
+
+
+	// Método principal para verificar disponibilidad de habitaciones
+	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
 		for (Alojamiento alojamiento : alojamientos) {
-			for (Habitacion habitacion : alojamiento.getHabitaciones()) {
-				// Filtrar por tipo de habitación y disponibilidad
-				if (habitacion.getTipo().equalsIgnoreCase(tipoHabitacion) && habitacion.estaDisponible(fechaInicio, fechaFin)) {
-					habitacionesDisponibles++;
-					if (habitacionesDisponibles >= cantidadSolicitada) {
-						return true; // Hay suficientes habitaciones disponibles
-					}
-				}
+			int habitacionesDisponibles = contarHabitacionesDisponibles(alojamiento, tipoHabitacion, fechaInicio, fechaFin);
+			if (habitacionesDisponibles >= cantidadSolicitada) {
+				return true; // Hay suficientes habitaciones disponibles
 			}
 		}
 		return false; // No hay suficientes habitaciones disponibles
 	}
+
+	// Método auxiliar para contar las habitaciones disponibles en un alojamiento
+	private int contarHabitacionesDisponibles(Alojamiento alojamiento, String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
+		return (int) alojamiento.getHabitaciones().stream()
+				.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+				.count();
+	}
+
 
 	public void actualizarReserva(Scanner scanner) {
 		System.out.print("Ingrese el email del cliente: ");
@@ -483,22 +582,51 @@ public class BookingApp {
 
 	private void cambiarHabitaciones(Reserva reserva, Scanner scanner) {
 		while (true) {
-			mostrarHabitacionesActuales(reserva);
-			String tipoSeleccionado = seleccionarHabitacionActual(reserva, scanner);
-			if (tipoSeleccionado == null) break;
-			List<Habitacion> habitacionesDisponibles = obtenerHabitacionesDisponibles(reserva);
-			if (habitacionesDisponibles.isEmpty()) {
-				mostrarMensajeNoHayHabitaciones();
-				continue;
+			if (!procesarCambioDeHabitacion(reserva, scanner)) {
+				break;
 			}
-			mostrarHabitacionesDisponibles(habitacionesDisponibles, reserva);
-			Habitacion nuevaHabitacion = seleccionarNuevaHabitacion(habitacionesDisponibles, scanner);
-			if (nuevaHabitacion == null) continue;
-			int nuevaCantidad = validarCantidad(scanner, nuevaHabitacion, reserva);
-			if (nuevaCantidad == -1) continue;
+		}
+	}
+
+	private boolean procesarCambioDeHabitacion(Reserva reserva, Scanner scanner) {
+		mostrarHabitacionesActuales(reserva);
+
+		String tipoSeleccionado = seleccionarHabitacionActual(reserva, scanner);
+		if (tipoSeleccionado == null) {
+			return false; // Salir del bucle
+		}
+
+		List<Habitacion> habitacionesDisponibles = obtenerHabitacionesDisponibles(reserva);
+		if (validarDisponibilidadHabitaciones(habitacionesDisponibles)) {
+			gestionarSeleccionNuevaHabitacion(reserva, tipoSeleccionado, habitacionesDisponibles, scanner);
+		}
+
+		return true; // Continuar el bucle
+	}
+
+	private boolean validarDisponibilidadHabitaciones(List<Habitacion> habitacionesDisponibles) {
+		if (habitacionesDisponibles.isEmpty()) {
+			mostrarMensajeNoHayHabitaciones();
+			return false;
+		}
+		return true;
+	}
+
+	private void gestionarSeleccionNuevaHabitacion(Reserva reserva, String tipoSeleccionado,
+												   List<Habitacion> habitacionesDisponibles, Scanner scanner) {
+		mostrarHabitacionesDisponibles(habitacionesDisponibles, reserva);
+
+		Habitacion nuevaHabitacion = seleccionarNuevaHabitacion(habitacionesDisponibles, scanner);
+		if (nuevaHabitacion == null) {
+			return;
+		}
+
+		int nuevaCantidad = validarCantidad(scanner, nuevaHabitacion, reserva);
+		if (nuevaCantidad != -1) {
 			actualizarReserva(reserva, tipoSeleccionado, nuevaHabitacion, nuevaCantidad);
 		}
 	}
+
 
 	private void mostrarMensajeNoHayHabitaciones() {
 		System.out.println("No hay habitaciones disponibles en el alojamiento para las fechas seleccionadas.");
@@ -539,15 +667,30 @@ public class BookingApp {
 	}
 
 	private int validarSeleccion(String input, int maxOpciones) {
+		int index = parsearEntrada(input);
+		return esSeleccionValida(index, maxOpciones) ? index : manejarSeleccionInvalida();
+	}
+
+	// Método auxiliar para parsear la entrada como un entero
+	private int parsearEntrada(String input) {
 		try {
-			int index = Integer.parseInt(input) - 1;
-			if (index >= 0 && index < maxOpciones) return index;
+			return Integer.parseInt(input) - 1;
 		} catch (NumberFormatException e) {
-			// Ignorar excepciones de entrada no válida
+			return -1; // Valor inválido
 		}
+	}
+
+	// Método auxiliar para verificar si la selección está dentro del rango válido
+	private boolean esSeleccionValida(int index, int maxOpciones) {
+		return index >= 0 && index < maxOpciones;
+	}
+
+	// Método auxiliar para manejar selecciones inválidas
+	private int manejarSeleccionInvalida() {
 		System.out.println("Selección no válida. Intente de nuevo.");
 		return -1;
 	}
+
 
 	private String obtenerTipoSeleccionado(Reserva reserva, int index) {
 		List<String> tiposActuales = new ArrayList<>(reserva.getHabitacionesPorTipo().keySet());
@@ -602,29 +745,56 @@ public class BookingApp {
 
 	public void mostrarTodasLasReservas() {
 		if (reservas.isEmpty()) {
-			System.out.println("No hay reservas realizadas.");
+			mostrarMensajeSinReservas();
 			return;
 		}
 
-		System.out.println("Todas las reservas realizadas:");
+		mostrarEncabezadoReservas();
 		for (Reserva reserva : reservas) {
-			Cliente cliente = reserva.getCliente();
-			Alojamiento alojamiento = reserva.getAlojamiento();
-
-			if (cliente == null || alojamiento == null) {
-				System.out.println("Error: La reserva no tiene cliente o alojamiento asociado.");
-				continue;
-			}
-
-			System.out.println("----------------------------------------------------");
-			System.out.println("Cliente: " + cliente.getNombre() + " " + cliente.getApellido());
-			System.out.println("Email: " + cliente.getEmail());
-			System.out.println("Alojamiento: " + alojamiento.getNombre());
-			System.out.println("Tipo: " + alojamiento.getTipo());
-			mostrarDetallesReserva(reserva, alojamiento);
-			System.out.println("----------------------------------------------------");
+			if (!validarReserva(reserva)) continue;
+			mostrarDetalleCompletoReserva(reserva);
 		}
 	}
+
+	private void mostrarMensajeSinReservas() {
+		System.out.println("No hay reservas realizadas.");
+	}
+
+	private void mostrarEncabezadoReservas() {
+		System.out.println("Todas las reservas realizadas:");
+	}
+
+	private boolean validarReserva(Reserva reserva) {
+		Cliente cliente = reserva.getCliente();
+		Alojamiento alojamiento = reserva.getAlojamiento();
+		if (cliente == null || alojamiento == null) {
+			System.out.println("Error: La reserva no tiene cliente o alojamiento asociado.");
+			return false;
+		}
+		return true;
+	}
+
+	private void mostrarDetalleCompletoReserva(Reserva reserva) {
+		Cliente cliente = reserva.getCliente();
+		Alojamiento alojamiento = reserva.getAlojamiento();
+
+		System.out.println("----------------------------------------------------");
+		mostrarDetalleCliente(cliente);
+		mostrarDetalleAlojamiento(alojamiento);
+		mostrarDetallesReserva(reserva, alojamiento);
+		System.out.println("----------------------------------------------------");
+	}
+
+	private void mostrarDetalleCliente(Cliente cliente) {
+		System.out.println("Cliente: " + cliente.getNombre() + " " + cliente.getApellido());
+		System.out.println("Email: " + cliente.getEmail());
+	}
+
+	private void mostrarDetalleAlojamiento(Alojamiento alojamiento) {
+		System.out.println("Alojamiento: " + alojamiento.getNombre());
+		System.out.println("Tipo: " + alojamiento.getTipo());
+	}
+
 
 	private void mostrarDetallesReserva(Reserva reserva, Alojamiento alojamiento) {
 		switch (alojamiento.getTipo().toLowerCase()) {
@@ -680,29 +850,40 @@ public class BookingApp {
 	}
 
 	public void mostrarDetalleReserva(Reserva reserva) {
-		if (reserva.getCliente() == null) {
-			System.out.println("La reserva no tiene un cliente asociado.");
+		if (!validarReserva(reserva)) {
 			return;
 		}
 
-		Cliente cliente = reserva.getCliente(); // Obtener el cliente desde la reserva
+		mostrarInformacionCliente(reserva.getCliente());
+		mostrarInformacionAlojamiento(reserva);
+		mostrarHabitacionesReservadas(reserva.getHabitacionesPorTipo());
+	}
+
+	// Método auxiliar para mostrar información del cliente
+	private void mostrarInformacionCliente(Cliente cliente) {
 		System.out.println("----------------------------------------------------");
 		System.out.println("Cliente: " + cliente.getNombre() + " " + cliente.getApellido());
 		System.out.println("Email: " + cliente.getEmail());
+	}
+
+	// Método auxiliar para mostrar información del alojamiento y fechas
+	private void mostrarInformacionAlojamiento(Reserva reserva) {
 		System.out.println("Alojamiento: " + reserva.getAlojamiento().getNombre());
 		System.out.println("Fechas: " + reserva.getFechaInicio() + " a " + reserva.getFechaFin());
+	}
 
-		// Mostrar las habitaciones reservadas
-		if (reserva.getHabitacionesPorTipo() != null && !reserva.getHabitacionesPorTipo().isEmpty()) {
+	// Método auxiliar para mostrar las habitaciones reservadas
+	private void mostrarHabitacionesReservadas(Map<String, Integer> habitacionesPorTipo) {
+		if (habitacionesPorTipo != null && !habitacionesPorTipo.isEmpty()) {
 			System.out.println(HABITACIONES_RESERVADAS);
-			for (String habitacionId : reserva.getHabitacionesPorTipo().keySet()) {
-				int cantidad = reserva.getHabitacionesPorTipo().get(habitacionId);
-				System.out.println("- Habitacion ID: " + habitacionId + ": " + cantidad + " habitación(es)");
-			}
+			habitacionesPorTipo.forEach((habitacionId, cantidad) ->
+					System.out.println("- Habitacion ID: " + habitacionId + ": " + cantidad + " habitación(es)")
+			);
 		} else {
 			System.out.println("No hay habitaciones reservadas.");
 		}
 	}
+
 
 	public Reserva autenticarUsuario(String email, LocalDate fechaNacimiento) {
 		return reservas.stream()
