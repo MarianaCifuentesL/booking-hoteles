@@ -1,47 +1,36 @@
-package model;
+package src.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Habitacion {
-	private String id; // Identificador único
     private String tipo;
-    private double precio;
+    private Double precio;
     private String caracteristicas;
-    private int capacidad;
+    private Integer capacidad;
+    private Integer cantidad;
     private List<Reserva> reservas;
 
-    public Habitacion(String id,String tipo, double precio, String caracteristicas, int capacidad) {
-    	this.id = id;
+    public Habitacion(String tipo, Double precio, String caracteristicas, Integer capacidad, Integer cantidad) {
         this.tipo = tipo;
         this.precio = precio;
         this.caracteristicas = caracteristicas;
         this.capacidad = capacidad;
         this.reservas = new ArrayList<>();
+        this.cantidad = cantidad;
     }
-    
-    
-    
-    
-    public String getId() {
-		return id;
-	}
-
-
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
 
 
     // Método para verificar si la habitación está disponible para el rango de fechas
     public boolean estaDisponible(LocalDate fechaInicio, LocalDate fechaFin) {
-        // Verificar si hay alguna reserva que se solape con las fechas solicitadas
-        return reservas.stream()
-            .noneMatch(reserva -> (reserva.getFechaInicio().isBefore(fechaFin) && reserva.getFechaFin().isAfter(fechaInicio)));
+        long reservasConflicto = reservas.stream()
+                .filter(reserva -> !(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin())))
+                .count();
+        return reservasConflicto < cantidad; // Verifica que haya habitaciones restantes
     }
+
     
     public boolean estaOcupada(LocalDate fechaInicio, LocalDate fechaFin) {
         for (Reserva reserva : reservas) {
@@ -58,8 +47,6 @@ public class Habitacion {
         System.out.println("La reserva ha sido eliminada de la habitación: " + tipo);
     }
 
-
-    
     public void agregarReserva(Reserva reserva) {
         this.reservas.add(reserva);
     }
@@ -80,7 +67,33 @@ public class Habitacion {
         System.out.println("Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas);
     }
 
+    public int getDisponibilidad(LocalDate fechaInicio, LocalDate fechaFin) {
+        int cantidadDisponible = cantidad;
+
+        for (Reserva reserva : reservas) {
+            if (!(fechaFin.isBefore(reserva.getFechaInicio()) || fechaInicio.isAfter(reserva.getFechaFin()))) {
+                // Si las fechas se solapan, restar las habitaciones reservadas
+                Map<String, Integer> habitacionesReservadas = reserva.getHabitacionesPorTipo();
+                int cantidadReservada = habitacionesReservadas.getOrDefault(tipo, 0);
+                cantidadDisponible -= cantidadReservada;
+            }
+        }
+
+        return Math.max(cantidadDisponible, 0); // Asegurarse de que no retorne valores negativos
+    }
+
+
     // Métodos Getters y Setters
+
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
     public String getTipo() {
         return tipo;
     }
@@ -107,7 +120,7 @@ public class Habitacion {
     
     @Override
     public String toString() {
-        return "ID: " + id + " | Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas + " | Capacidad: " + capacidad;
+        return "Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas + " | Capacidad: " + capacidad + " | Cantidad: " + cantidad;
     }
 
 }

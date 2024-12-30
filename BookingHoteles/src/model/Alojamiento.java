@@ -1,9 +1,6 @@
-package model;
+package src.model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +8,15 @@ public class Alojamiento {
     private String nombre;
     private String ciudad;
     private String tipo; // Hotel, Apartamento, Finca, Día de Sol
-    private int calificacion; // Del 1 al 5
-    private double precioPorNoche;
+    private Integer calificacion; // Del 1 al 5
+    private Double precioPorNoche;
     private List<Habitacion> habitaciones;
     private List<Reserva> reservas;
+
+    private List<String> actividades; // Lista de actividades disponibles
+    private Boolean incluyeAlmuerzo;
+    private Boolean incluyeRefrigerio;
+
 
     public Alojamiento(String nombre, String ciudad, String tipo, int calificacion, double precioPorNoche) {
         this.nombre = nombre;
@@ -25,7 +27,46 @@ public class Alojamiento {
         this.habitaciones = new ArrayList<>();
         this.reservas = new ArrayList<>();
     }
-    
+
+    public List<String> getActividades() {
+        return actividades;
+    }
+
+    public boolean isIncluyeAlmuerzo() {
+        return incluyeAlmuerzo;
+    }
+
+    public void setIncluyeAlmuerzo(boolean incluyeAlmuerzo) {
+        this.incluyeAlmuerzo = incluyeAlmuerzo;
+    }
+
+    public boolean isIncluyeRefrigerio() {
+        return incluyeRefrigerio;
+    }
+
+    public void setIncluyeRefrigerio(boolean incluyeRefrigerio) {
+        this.incluyeRefrigerio = incluyeRefrigerio;
+    }
+
+    public void setActividades(List<String> actividades) {
+        this.actividades = actividades;
+    }
+
+    public Boolean getIncluyeAlmuerzo() {
+        return incluyeAlmuerzo;
+    }
+
+    public void setIncluyeAlmuerzo(Boolean incluyeAlmuerzo) {
+        this.incluyeAlmuerzo = incluyeAlmuerzo;
+    }
+
+    public Boolean getIncluyeRefrigerio() {
+        return incluyeRefrigerio;
+    }
+
+    public void setIncluyeRefrigerio(Boolean incluyeRefrigerio) {
+        this.incluyeRefrigerio = incluyeRefrigerio;
+    }
 
     public Alojamiento(String nombre, String ciudad, String tipo, int calificacion) {
 		super();
@@ -46,12 +87,24 @@ public class Alojamiento {
 		this.reservas = reservas;
 	}
 
+//    Constructor Día de Sol
+    public Alojamiento(String nombre, String ciudad, String tipo, Integer calificacion, Double precioDia,
+                    List<String> actividades, Boolean incluyeAlmuerzo, Boolean incluyeRefrigerio) {
+        this.nombre = nombre;
+        this.ciudad = ciudad;
+        this.tipo = tipo;
+        this.calificacion = calificacion;
+        this.precioPorNoche = precioDia;
+        this.actividades = actividades;
+        this.incluyeAlmuerzo = incluyeAlmuerzo;
+        this.incluyeRefrigerio = incluyeRefrigerio;
+    }
 
-	public void agregarHabitacion(String tipo, double precio, String caracteristicas, int capacidad) {
-        String id = UUID.randomUUID().toString(); // Genera un ID único
-        Habitacion nuevaHabitacion = new Habitacion(id, tipo, precio, caracteristicas, capacidad);
+    public void agregarHabitacion(String tipo, Double precio, String caracteristicas, Integer capacidad, Integer cantidad) {
+
+        Habitacion nuevaHabitacion = new Habitacion(tipo, precio, caracteristicas, capacidad, cantidad);
         habitaciones.add(nuevaHabitacion);
-//        System.out.println("Habitación añadida: " + nuevaHabitacion);
+
     }
 
 
@@ -73,12 +126,6 @@ public class Alojamiento {
     public void setCiudad(String ciudad) {
         this.ciudad = ciudad;
     }
-
-    // Métodos para agregar y mostrar habitaciones
-//    public void agregarHabitacion(Habitacion habitacion) {
-//        this.habitaciones.add(habitacion);
-//    }
-    
 
 
     public void mostrarInformacion() {
