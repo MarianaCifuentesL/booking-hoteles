@@ -223,12 +223,9 @@ public class Main {
 	private static void realizarReserva(BookingApp app, Scanner scanner) {
 
 		String ciudad = solicitarCiudad(scanner);
-
 		String tipo = solicitarTipoAlojamiento(scanner);
-
 		List<Alojamiento> alojamientos = listarAlojamientos(app, ciudad, tipo);
 		if (alojamientos == null) return;
-
 		reservar(app, scanner, alojamientos, tipo, ciudad);
 	}
 
@@ -236,7 +233,6 @@ public class Main {
 		System.out.print("Seleccione un alojamiento: ");
 		int opcion = scanner.nextInt();
 		scanner.nextLine(); // Consumir el salto de línea
-
 		Alojamiento alojamientoSeleccionado = alojamientos.get(opcion - 1);
 
 		switch (tipo) {
@@ -300,14 +296,12 @@ public class Main {
 			};
 			scanner.nextLine(); // Consumir el salto de línea
 			if (tipoHabitacion.equalsIgnoreCase("fin")) break;
-
 			System.out.print("Cantidad: ");
 			int cantidad = scanner.nextInt();
 			scanner.nextLine(); // Consumir salto de línea
-
 			habitacionesPorTipo.put(tipoHabitacion, cantidad);
 		}
-
+		scanner.nextLine();
 		Cliente cliente = solicitarDatosCliente(scanner, app);
 		System.out.print("Ingrese la hora aproximada de llegada (HH:mm): ");
 		String horaLlegada = scanner.nextLine();
@@ -316,7 +310,6 @@ public class Main {
 	}
 
 	private static Cliente solicitarDatosCliente(Scanner scanner, BookingApp app) {
-
 		scanner.nextLine(); // Consumir cualquier salto de línea pendiente
 		System.out.print("Ingrese su nombre: ");
 		String nombreCliente = scanner.nextLine();
