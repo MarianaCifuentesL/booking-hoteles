@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Habitacion {
+public class Habitacion implements HabitacionComponent {
     private String tipo;
     private Double precio;
     private String caracteristicas;
@@ -31,7 +31,7 @@ public class Habitacion {
         return reservasConflicto < cantidad; // Verifica que haya habitaciones restantes
     }
 
-    
+
     public boolean estaOcupada(LocalDate fechaInicio, LocalDate fechaFin) {
         for (Reserva reserva : reservas) {
             // Si las fechas se solapan, la habitación está ocupada
@@ -64,7 +64,7 @@ public class Habitacion {
     }
 
     public void mostrarDetalles() {
-        System.out.println("Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas);
+        System.out.println("Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas + " | Capacidad: " + capacidad + " | Cantidad: " + cantidad);
     }
 
     public int getDisponibilidad(LocalDate fechaInicio, LocalDate fechaFin) {
@@ -117,13 +117,11 @@ public class Habitacion {
     public void setCaracteristicas(String caracteristicas) {
         this.caracteristicas = caracteristicas;
     }
-    
+
     @Override
     public String toString() {
         return "Tipo: " + tipo + " | Precio: " + precio + " | Características: " + caracteristicas + " | Capacidad: " + capacidad + " | Cantidad: " + cantidad;
     }
 
+
 }
-
-
-

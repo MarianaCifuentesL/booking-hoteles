@@ -83,42 +83,46 @@ public class BookingApp {
 		return alojamientoController.buscarAlojamientosPorCiudadYTipo(ciudad, tipo);
 	}
 
-	public boolean confirmarDisponibilidad(String nombreAlojamiento, LocalDate fechaInicio, LocalDate fechaFin, Map<String, Integer> habitacionesPorTipo) {
-		// Buscar el alojamiento por nombre
-		Alojamiento alojamiento = alojamientoController.buscarAlojamientoPorNombre(nombreAlojamiento);
-		if (alojamiento == null) {
-			System.out.println("No se encontró el alojamiento indicado.");
-			return false;
-		}
+//	public boolean confirmarDisponibilidad(String nombreAlojamiento, LocalDate fechaInicio, LocalDate fechaFin, Map<String, Integer> habitacionesPorTipo) {
+//		// Buscar el alojamiento por nombre
+//		Alojamiento alojamiento = alojamientoController.buscarAlojamientoPorNombre(nombreAlojamiento);
+//		if (alojamiento == null) {
+//			System.out.println("No se encontró el alojamiento indicado.");
+//			return false;
+//		}
+//
+//		// Verificar disponibilidad del alojamiento para el rango de fechas
+//		if (!alojamiento.estaDisponible(fechaInicio, fechaFin)) {
+//			System.out.println("El alojamiento no está disponible para las fechas indicadas.");
+//			return false;
+//		}
+//
+//		// Verificar disponibilidad de habitaciones por tipo
+//		return habitacionController.verificarDisponibilidadHabitaciones(alojamiento, fechaInicio, fechaFin, habitacionesPorTipo);
+//	}
 
-		// Verificar disponibilidad del alojamiento para el rango de fechas
-		if (!alojamiento.estaDisponible(fechaInicio, fechaFin)) {
-			System.out.println("El alojamiento no está disponible para las fechas indicadas.");
-			return false;
-		}
 
-		// Verificar disponibilidad de habitaciones por tipo
-		return habitacionController.verificarDisponibilidadHabitaciones(alojamiento, fechaInicio, fechaFin, habitacionesPorTipo);
-	}
-
-
-	// Método principal para verificar disponibilidad de habitaciones
+	// Método principal para verificar disponibilidad de habitaciones en hoteles
 	public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
 		for (Alojamiento alojamiento : alojamientos) {
-			int habitacionesDisponibles = contarHabitacionesDisponibles(alojamiento, tipoHabitacion, fechaInicio, fechaFin);
-			if (habitacionesDisponibles >= cantidadSolicitada) {
-				return true; // Hay suficientes habitaciones disponibles
+			if (alojamiento instanceof Hotel hotel) {
+				int habitacionesDisponibles = contarHabitacionesDisponibles(hotel, tipoHabitacion, fechaInicio, fechaFin);
+				if (habitacionesDisponibles >= cantidadSolicitada) {
+					return true; // Hay suficientes habitaciones disponibles
+				}
 			}
 		}
 		return false; // No hay suficientes habitaciones disponibles
 	}
 
-	// Método auxiliar para contar las habitaciones disponibles en un alojamiento
-	private int contarHabitacionesDisponibles(Alojamiento alojamiento, String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
-		return (int) alojamiento.getHabitaciones().stream()
+
+	// Método auxiliar para contar las habitaciones disponibles en un hotel
+	private int contarHabitacionesDisponibles(Hotel hotel, String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
+		return (int) hotel.getHabitaciones().stream()
 				.filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
 				.count();
 	}
+
 
 
 	public void actualizarReserva(Scanner scanner) {
@@ -161,9 +165,10 @@ public class BookingApp {
 		System.out.println("----------------------------------------------------");
 		mostrarDetalleCliente(cliente);
 		mostrarDetalleAlojamiento(alojamiento);
-		mostrarDetallesReserva(reserva, alojamiento);
+		mostrarDetallesReserva(reserva);
 		System.out.println("----------------------------------------------------");
 	}
+
 
 	private void mostrarDetalleCliente(Cliente cliente) {
 		System.out.println("Cliente: " + cliente.getNombre() + " " + cliente.getApellido());
@@ -172,16 +177,19 @@ public class BookingApp {
 
 	private void mostrarDetalleAlojamiento(Alojamiento alojamiento) {
 		System.out.println("Alojamiento: " + alojamiento.getNombre());
-		System.out.println("Tipo: " + alojamiento.getTipo());
+		System.out.println("Tipo: " + alojamiento.getClass().getSimpleName());
 	}
 
-
-	private void mostrarDetallesReserva(Reserva reserva, Alojamiento alojamiento) {
-		switch (alojamiento.getTipo().toLowerCase()) {
-			case "finca", "apartamento" -> mostrarDetallesBasicos(reserva);
-			case "hotel" -> mostrarDetallesHotel(reserva);
-			case "día de sol" -> mostrarDetallesDiaDeSol(reserva);
-			default -> System.out.println("Tipo de alojamiento no reconocido.");
+	private void mostrarDetallesReserva(Reserva reserva) {
+		Alojamiento alojamiento = reserva.getAlojamiento();
+		if (alojamiento instanceof Hotel) {
+			mostrarDetallesHotel(reserva);
+		} else if (alojamiento instanceof DiaDeSol) {
+			mostrarDetallesDiaDeSol(reserva);
+		} else if (alojamiento instanceof Finca || alojamiento instanceof Apartamento) {
+			mostrarDetallesBasicos(reserva);
+		} else {
+			System.out.println("Tipo de alojamiento no reconocido.");
 		}
 	}
 
@@ -225,4 +233,3 @@ public class BookingApp {
 		diaDeSolController.reservarDiaDeSol(cliente, alojamiento, fechaInicio, cantidadAdultos, cantidadNiños);
 	}
 }
-

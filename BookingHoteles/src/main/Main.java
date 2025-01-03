@@ -1,8 +1,6 @@
 package src.main;
 
 import src.model.*;
-
-import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,9 +80,8 @@ public class Main {
 
 
 	private static void inicializarAlojamientos(BookingApp app) {
-
 		// Inicializar Hotel Quindío
-		Alojamiento hotel1 = new Alojamiento("Hotel Quindío", "Armenia", "Hotel", 4, 200000.0);
+		Hotel hotel1 = new Hotel("Hotel Quindío", "Armenia", 4, 200000.0);
 		hotel1.agregarHabitacion("Sencilla", 100000.0, "Cama sencilla, WiFi, Aire Acondicionado, TV", 2, 3);
 		hotel1.agregarHabitacion("Doble", 150000.0, "2 camas dobles, Vista al mar, Aire acondicionado, Cafetera, TV de pantalla plana, ducha, escritorio", 4, 2);
 		hotel1.agregarHabitacion("Triple", 200000.0, "3 camas, Balcón, Mini bar, WiFi, Caja fuerte, TV", 3, 2);
@@ -92,15 +89,18 @@ public class Main {
 		hotel1.agregarHabitacion("Familiar", 250000.0, "4 camas, Espacio amplio, Área de juegos, Aire acondicionado, Cocina pequeña", 6, 2);
 
 		// Inicializar Finca Campestre
-		Alojamiento finca1 = new Alojamiento("Finca Campestre", "Armenia", "Finca", 5, 250000.0);
+		Finca finca1 = new Finca("Finca Campestre", "Armenia", 5, 250000.0);
 
 		// Instancias para Día de Sol
-		Alojamiento diaDeSol1 = new Alojamiento("Resort Caribe Día de Sol", "Cartagena", "Día de Sol", 5, 120000.0, List.of("Natación", "Kayak", "Spa", "Senderismo"), true, true);
-		Alojamiento diaDeSol2 = new Alojamiento("EcoParque Aventura", "Medellín", "Día de Sol", 4, 80000.0, List.of("Tirolesa", "Caminata ecológica", "Paintball"), false, true);
-		Alojamiento diaDeSol3 = new Alojamiento("Club Campestre Día Relax", "Cali", "Día de Sol", 3, 90000.0, List.of("Piscina", "Yoga al aire libre", "Tenis"), true, false);
+		DiaDeSol diaDeSol1 = new DiaDeSol("Resort Caribe Día de Sol", "Cartagena", 5, 120000.0,
+				List.of("Natación", "Kayak", "Spa", "Senderismo"), true, true);
+		DiaDeSol diaDeSol2 = new DiaDeSol("EcoParque Aventura", "Medellín", 4, 80000.0,
+				List.of("Tirolesa", "Caminata ecológica", "Paintball"), false, true);
+		DiaDeSol diaDeSol3 = new DiaDeSol("Club Campestre Día Relax", "Cali", 3, 90000.0,
+				List.of("Piscina", "Yoga al aire libre", "Tenis"), true, false);
 
 		// Inicializar Apartamento
-		Alojamiento apartamento = new Alojamiento("Apartamentos Cibeles", "Armenia", "Apartamento", 5, 200000);
+		Apartamento apartamento = new Apartamento("Apartamentos Cibeles", "Armenia", 5, 200000.0);
 
 		// Agregar alojamientos al sistema
 		app.agregarAlojamiento(hotel1);
@@ -122,8 +122,6 @@ public class Main {
 		// Realizar reserva
 		app.reservarHotel(cliente, hotel1, 2, 1, LocalDate.of(2025, 5, 25), LocalDate.of(2025, 5, 30), habitacionesReservadas, "15:00");
 	}
-
-
 
 	private static void buscarAlojamientos(BookingApp app, Scanner scanner) {
 
@@ -221,7 +219,6 @@ public class Main {
 
 
 	private static void realizarReserva(BookingApp app, Scanner scanner) {
-
 		String ciudad = solicitarCiudad(scanner);
 		String tipo = solicitarTipoAlojamiento(scanner);
 		List<Alojamiento> alojamientos = listarAlojamientos(app, ciudad, tipo);
