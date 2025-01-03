@@ -1,8 +1,6 @@
 package src.controller;
 
-import src.model.Alojamiento;
-import src.model.Habitacion;
-import src.model.Reserva;
+import src.model.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,18 +17,13 @@ public class HabitacionController {
 
     public void confirmarHabitaciones(String nombreHotel, LocalDate fechaInicio, LocalDate fechaFin, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
         System.out.println("\n--- Confirmar habitaciones para: " + nombreHotel + " ---");
-
         Alojamiento alojamiento = buscarAlojamientoPorNombre(nombreHotel);
-
         if (alojamiento == null) {
             System.out.println("No se encontró un hotel con el nombre indicado.");
             return;
         }
-
         int totalPersonas = cantidadAdultos + cantidadNiños;
-
         boolean disponibilidad = mostrarHabitacionesDisponibles(alojamiento, fechaInicio, fechaFin, totalPersonas, cantidadHabitaciones);
-
         if (!disponibilidad) {
             System.out.println("No hay habitaciones disponibles para las fechas indicadas.");
         }
@@ -44,24 +37,45 @@ public class HabitacionController {
     }
 
     // Método auxiliar para mostrar habitaciones disponibles
+//    private boolean mostrarHabitacionesDisponibles(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin, int totalPersonas, int cantidadHabitaciones) {
+//        boolean disponibilidad = false;
+//
+//        for (Habitacion habitacion : alojamiento.getHabitaciones()) {
+//            int disponiblesParaFechas = calcularDisponibilidad(habitacion, fechaInicio, fechaFin);
+//
+//            if (esHabitacionAdecuada(habitacion, totalPersonas, disponiblesParaFechas, cantidadHabitaciones)) {
+//                mostrarDetallesHabitacion(habitacion, disponiblesParaFechas);
+//                disponibilidad = true;
+//            }
+//        }
+//        return disponibilidad;
+//    }
+
     private boolean mostrarHabitacionesDisponibles(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin, int totalPersonas, int cantidadHabitaciones) {
         boolean disponibilidad = false;
-
-        for (Habitacion habitacion : alojamiento.getHabitaciones()) {
-            int disponiblesParaFechas = calcularDisponibilidad(habitacion, fechaInicio, fechaFin);
-
-            if (esHabitacionAdecuada(habitacion, totalPersonas, disponiblesParaFechas, cantidadHabitaciones)) {
-                mostrarDetallesHabitacion(habitacion, disponiblesParaFechas);
-                disponibilidad = true;
+        if (alojamiento instanceof Hotel) { // Verificamos que el alojamiento sea un Hotel
+            Hotel hotel = (Hotel) alojamiento;
+            for (HabitacionComponent habitacion : hotel.getHabitaciones()) {  // Habitaciones solo disponibles en hoteles
+                int disponiblesParaFechas = habitacion.getDisponibilidad(fechaInicio, fechaFin);
+                if (esHabitacionAdecuada(habitacion, totalPersonas, disponiblesParaFechas, cantidadHabitaciones)) {
+                    habitacion.mostrarDetalles();  // Mostrar detalles de la habitación
+                    disponibilidad = true;
+                }
             }
         }
         return disponibilidad;
     }
 
+
+
     // Método auxiliar para verificar si una habitación es adecuada
-    private boolean esHabitacionAdecuada(Habitacion habitacion, int totalPersonas, int disponiblesParaFechas, int cantidadHabitaciones) {
+//    private boolean esHabitacionAdecuada(Habitacion habitacion, int totalPersonas, int disponiblesParaFechas, int cantidadHabitaciones) {
+//        return habitacion.getCapacidad() >= totalPersonas && disponiblesParaFechas >= cantidadHabitaciones;
+//    }
+    private boolean esHabitacionAdecuada(HabitacionComponent habitacion, int totalPersonas, int disponiblesParaFechas, int cantidadHabitaciones) {
         return habitacion.getCapacidad() >= totalPersonas && disponiblesParaFechas >= cantidadHabitaciones;
     }
+
 
     // Método auxiliar para mostrar los detalles de una habitación
     private void mostrarDetallesHabitacion(Habitacion habitacion, int disponiblesParaFechas) {
@@ -113,11 +127,16 @@ public class HabitacionController {
 
     // Método auxiliar para calcular la cantidad de habitaciones disponibles para un tipo específico
     private int calcularHabitacionesDisponibles(Alojamiento alojamiento, String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
-        return alojamiento.getHabitaciones().stream()
-                .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-                .mapToInt(Habitacion::getCantidad)
-                .sum();
+        if (alojamiento instanceof Hotel) {  // Solo accedemos a habitaciones si es un Hotel
+            Hotel hotel = (Hotel) alojamiento;
+            return hotel.getHabitaciones().stream()
+                    .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+                    .mapToInt(Habitacion::getCantidad)
+                    .sum();
+        }
+        return 0;  // No hay habitaciones disponibles si no es un Hotel
     }
+
 
     // Método principal para verificar disponibilidad de habitaciones
     public boolean verificarDisponibilidad(String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin, int cantidadSolicitada) {
@@ -132,10 +151,15 @@ public class HabitacionController {
 
     // Método auxiliar para contar las habitaciones disponibles en un alojamiento
     private int contarHabitacionesDisponibles(Alojamiento alojamiento, String tipoHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
-        return (int) alojamiento.getHabitaciones().stream()
-                .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-                .count();
+        if (alojamiento instanceof Hotel) {  // Solo accedemos a habitaciones si es un Hotel
+            Hotel hotel = (Hotel) alojamiento;
+            return (int) hotel.getHabitaciones().stream()
+                    .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+                    .count();
+        }
+        return 0;  // No hay habitaciones disponibles si no es un Hotel
     }
+
 
     private void reservarHabitaciones(Reserva reserva, Habitacion habitacion, int cantidad) {
         for (int i = 0; i < cantidad; i++) {
@@ -146,16 +170,22 @@ public class HabitacionController {
         System.out.println("Se han reservado " + cantidad + " habitación(es) del tipo " + habitacion.getTipo() + ".");
     }
 
+    // Método para obtener el precio de la habitación más simple en un alojamiento
     public double obtenerPrecioHabitacionMasSimple(Alojamiento alojamiento) {
-        return alojamiento.getHabitaciones().stream()
-                .mapToDouble(Habitacion::getPrecio)
-                .min()
-                .orElse(0);
+        if (alojamiento instanceof Hotel) {  // Solo accedemos a habitaciones si es un Hotel
+            Hotel hotel = (Hotel) alojamiento;
+            return hotel.getHabitaciones().stream()
+                    .mapToDouble(Habitacion::getPrecio)
+                    .min()
+                    .orElse(0);
+        }
+        return 0;  // Si no es un Hotel, no tiene habitaciones
     }
+
 
     // Método auxiliar para procesar y validar habitaciones
     public boolean procesarTiposDeHabitaciones(Alojamiento alojamiento, Map<String, Integer> habitacionesPorTipo,
-                                                LocalDate fechaInicio, LocalDate fechaFin, Map<Habitacion, Integer> habitacionesReservadas) {
+                                               LocalDate fechaInicio, LocalDate fechaFin, Map<Habitacion, Integer> habitacionesReservadas) {
         for (Map.Entry<String, Integer> entry : habitacionesPorTipo.entrySet()) {
             String tipoHabitacion = entry.getKey();
             int cantidadSolicitada = entry.getValue();
@@ -185,10 +215,15 @@ public class HabitacionController {
     // Método auxiliar para obtener habitaciones disponibles
     private List<Habitacion> obtenerHabitacionesDisponibles(Alojamiento alojamiento, String tipoHabitacion,
                                                             LocalDate fechaInicio, LocalDate fechaFin) {
-        return alojamiento.getHabitaciones().stream()
-                .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
-                .toList();
+        if (alojamiento instanceof Hotel) {  // Solo accedemos a habitaciones si es un Hotel
+            Hotel hotel = (Hotel) alojamiento;
+            return hotel.getHabitaciones().stream()
+                    .filter(h -> h.getTipo().equalsIgnoreCase(tipoHabitacion) && h.estaDisponible(fechaInicio, fechaFin))
+                    .toList();
+        }
+        return new ArrayList<>();  // Si no es un Hotel, devolvemos una lista vacía
     }
+
 
     // Método auxiliar para reservar habitaciones
     private void reservarHabitaciones(List<Habitacion> habitacionesDisponibles, int cantidadSolicitada,

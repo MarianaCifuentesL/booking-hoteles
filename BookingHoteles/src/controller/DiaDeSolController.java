@@ -2,6 +2,7 @@ package src.controller;
 
 import src.model.Alojamiento;
 import src.model.Cliente;
+import src.model.DiaDeSol;
 import src.model.Reserva;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,8 +37,9 @@ public class DiaDeSolController {
     }
 
     private boolean esDiaDeSolEnCiudad(Alojamiento alojamiento, String ciudad) {
-        return alojamiento.getCiudad().equalsIgnoreCase(ciudad) && alojamiento.getTipo().equalsIgnoreCase("Día de Sol");
+        return alojamiento instanceof DiaDeSol && alojamiento.getCiudad().equalsIgnoreCase(ciudad);
     }
+
 
     private void mostrarInformacionDiaDeSol(Alojamiento alojamiento, int totalPersonas) {
         mostrarDetallesGenerales(alojamiento);
@@ -46,14 +48,24 @@ public class DiaDeSolController {
     }
 
     private void mostrarDetallesGenerales(Alojamiento alojamiento) {
-        System.out.println("Nombre: " + alojamiento.getNombre());
-        System.out.println("Calificación: " + alojamiento.getCalificacion() + " estrellas");
-        System.out.println("Actividades: " + String.join(", ", alojamiento.getActividades()));
+        if (alojamiento instanceof DiaDeSol) {
+            DiaDeSol diaDeSol = (DiaDeSol) alojamiento;
+            System.out.println("Nombre: " + diaDeSol.getNombre());
+            System.out.println("Calificación: " + diaDeSol.getCalificacion() + " estrellas");
+            System.out.println("Actividades: " + String.join(", ", diaDeSol.getActividades()));
+        } else {
+            System.out.println("El alojamiento no es un Día de Sol.");
+        }
     }
 
     private void mostrarServiciosIncluidos(Alojamiento alojamiento) {
-        System.out.println("Incluye Almuerzo: " + convertirBooleanoTexto(alojamiento.isIncluyeAlmuerzo()));
-        System.out.println("Incluye Refrigerio: " + convertirBooleanoTexto(alojamiento.isIncluyeRefrigerio()));
+        if (alojamiento instanceof DiaDeSol) {
+            DiaDeSol diaDeSol = (DiaDeSol) alojamiento;
+            System.out.println("Incluye Almuerzo: " + convertirBooleanoTexto(diaDeSol.isIncluyeAlmuerzo()));
+            System.out.println("Incluye Refrigerio: " + convertirBooleanoTexto(diaDeSol.isIncluyeRefrigerio()));
+        } else {
+            System.out.println("El alojamiento no es un Día de Sol.");
+        }
     }
 
     private void mostrarCostos(Alojamiento alojamiento, int totalPersonas) {

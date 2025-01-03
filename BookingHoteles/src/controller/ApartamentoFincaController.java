@@ -1,9 +1,6 @@
 package src.controller;
 
-import src.model.Alojamiento;
-import src.model.Cliente;
-import src.model.Habitacion;
-import src.model.Reserva;
+import src.model.*;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -39,8 +36,15 @@ public class ApartamentoFincaController {
 
     // Método auxiliar para verificar si un alojamiento es del tipo y ciudad especificados
     private boolean esAlojamientoDeTipoEnCiudad(Alojamiento alojamiento, String ciudad, String tipo) {
-        return alojamiento.getCiudad().equalsIgnoreCase(ciudad) && alojamiento.getTipo().equalsIgnoreCase(tipo);
+        // Verificamos la ciudad
+        if (!alojamiento.getCiudad().equalsIgnoreCase(ciudad)) {
+            return false;
+        }
+        // Verificamos si es del tipo especificado (Apartamento o Finca)
+        return (tipo.equalsIgnoreCase("Apartamento") && alojamiento instanceof Apartamento) ||
+                (tipo.equalsIgnoreCase("Finca") && alojamiento instanceof Finca);
     }
+
 
     // Método auxiliar para calcular el precio final con ajustes
     private double calcularPrecioConAjustes(double precioPorNoche, long diasEstadia, LocalDate fechaInicio, LocalDate fechaFin) {

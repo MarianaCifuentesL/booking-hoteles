@@ -1,9 +1,6 @@
 package src.controller;
 
-import src.model.Alojamiento;
-import src.model.Cliente;
-import src.model.Habitacion;
-import src.model.Reserva;
+import src.model.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -80,16 +77,20 @@ public class HotelController {
     }
 
     private boolean verificarCapacidad(Alojamiento alojamiento, int cantidadAdultos, int cantidadNiños, int cantidadHabitaciones) {
+        if (!(alojamiento instanceof Hotel)) {
+            System.out.println("El alojamiento no es un hotel y no tiene habitaciones.");
+            return false; // Si no es un hotel, no se puede verificar la capacidad.
+        }
+        Hotel hotel = (Hotel) alojamiento; // Convertimos a Hotel, ya que sabemos que es un Hotel.
         int totalPersonas = calcularTotalPersonas(cantidadAdultos, cantidadNiños);
-        List<Habitacion> habitaciones = alojamiento.getHabitaciones();
-
+        List<Habitacion> habitaciones = hotel.getHabitaciones(); // Accedemos a las habitaciones solo si es un Hotel.
         if (!validarCantidadHabitaciones(habitaciones, cantidadHabitaciones)) {
             return false;
         }
-
         List<List<Habitacion>> combinaciones = generarCombinaciones(habitaciones, cantidadHabitaciones);
         return existeCombinacionValida(combinaciones, totalPersonas);
     }
+
 
     private int calcularTotalPersonas(int cantidadAdultos, int cantidadNiños) {
         return cantidadAdultos + cantidadNiños;
@@ -141,8 +142,12 @@ public class HotelController {
     }
 
     private boolean esHotelEnCiudad(Alojamiento alojamiento, String ciudad) {
-        return alojamiento.getCiudad().equalsIgnoreCase(ciudad) && alojamiento.getTipo().equalsIgnoreCase("Hotel");
+        if (alojamiento instanceof Hotel) {
+            return alojamiento.getCiudad().equalsIgnoreCase(ciudad);
+        }
+        return false; // Si no es un hotel, no es válido.
     }
+
 
     private long calcularDiasEstadia(LocalDate fechaInicio, LocalDate fechaFin) {
         return ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1;
@@ -358,9 +363,20 @@ public class HotelController {
     }
 
     private List<Habitacion> obtenerHabitacionesDisponibles(Reserva reserva) {
-        return reserva.getAlojamiento().getHabitaciones().stream()
-                .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()))
-                .toList();
+        Alojamiento alojamiento = reserva.getAlojamiento();
+
+        // Verificamos si el alojamiento es un hotel
+        if (alojamiento instanceof Hotel) {
+            // Accedemos a las habitaciones solo si el alojamiento es un Hotel
+            Hotel hotel = (Hotel) alojamiento;
+            return hotel.getHabitaciones().stream()
+                    .filter(h -> h.estaDisponible(reserva.getFechaInicio(), reserva.getFechaFin()))
+                    .toList();
+        } else {
+            // Si el alojamiento no tiene habitaciones, no devolvemos ninguna
+            System.out.println("Este alojamiento no tiene habitaciones disponibles.");
+            return new ArrayList<>(); // Lista vacía para alojamientos que no son hoteles
+        }
     }
 
     private void mostrarHabitacionesDisponibles(List<Habitacion> habitacionesDisponibles, Reserva reserva) {
